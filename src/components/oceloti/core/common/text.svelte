@@ -1,10 +1,26 @@
 <script>
-    export let is_selectable = false;
-    export let attrs = {};
-    export let classes = "text-12 text-neutral-100 font-mono";
-    // @TODO: Check store??? and make is_selectable false if dragging???
+  export let is_selectable = false;
+  export let fontClasses = "text-14 text-black font-sans";
+  export let label_for = null;
+  export let classes = "flex";
+  export let attrs = {};
 </script>
 
-<span {...attrs} class={classes} class:select-none={!is_selectable}>
+{#if label_for}
+  <label
+    {...attrs}
+    class="{fontClasses} {classes}"
+    class:select-none={!is_selectable}
+    for={label_for}
+  >
     <slot />
-</span>
+  </label>
+{:else}
+  <span
+    {...attrs}
+    class="{fontClasses} {classes}"
+    class:select-none={!is_selectable}
+  >
+    <slot />
+  </span>
+{/if}

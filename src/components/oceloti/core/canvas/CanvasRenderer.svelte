@@ -108,7 +108,7 @@
             $world_y += e.wheelDeltaY * PANNING_SPEED;
           }
         },
-        { passive: false },
+        { passive: false }
       );
 
       window.addEventListener("mousemove", (e) => {
