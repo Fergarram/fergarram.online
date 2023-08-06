@@ -5,12 +5,9 @@
     objects,
     object_stack,
     current_zoom,
-    object_context_menu,
-    camera_x1,
-    camera_y1,
-    camera_x2,
-    camera_y2,
+    is_dragging,
   } from "../../../../stores/canvas";
+  import { object_context_menu } from "../../../../stores/workspace";
 
   export let x = 0;
   export let y = 0;
@@ -24,12 +21,11 @@
   export let show_shadow = true;
 
   let resize_observer;
-  let is_card_being_dragged = false;
   let is_mounted = false;
   let width = 0;
   let height = 0;
   let object_el;
-  let is_dragging = false;
+  let is_being_dragged = false;
   let delta_x = 0;
   let delta_y = 0;
   let last_mouse_x = 0;
@@ -50,7 +46,7 @@
   });
 
   function update_card_store() {
-    $objects[id] = { x, y, width, height, is_dragging };
+    $objects[id] = { x, y, width, height, is_being_dragged };
     $objects = $objects;
   }
 
@@ -89,14 +85,14 @@
       last_mouse_y = e.clientY * (100 / $current_zoom);
       x = x - delta_x;
       y = y - delta_y;
-      is_dragging = true;
+      is_being_dragged = true;
       set_pointer_events_for(object_el, "none");
       update_card_store();
     };
 
     document.onmouseup = (e) => {
       if (e.button !== 0) return;
-      is_dragging = false;
+      is_being_dragged = false;
       e.target.classList.remove("!cursor-grabbing");
       set_pointer_events_for(object_el, "initial");
       document.onmousemove = null;
@@ -142,11 +138,13 @@
     object_el.style.zIndex = $object_stack.indexOf(id);
   }
 
-  $: if (is_dragging && is_mounted) {
+  $: if (is_being_dragged && is_mounted) {
     document.body.classList.add("select-none");
-  } else if (!is_dragging && is_mounted) {
+  } else if (!is_being_dragged && is_mounted) {
     document.body.classList.remove("select-none");
   }
+
+  $: $is_dragging = is_being_dragged;
 </script>
 
 <div
@@ -163,11 +161,11 @@
     style={styles}
     class={show_shadow
       ? `shadow-floor transition ${classes} ${
-          is_card_being_dragged
+          is_being_dragged
             ? `${dragging_classes} shadow-grabbing scale-[1.01]`
             : ""
         }`
-      : `${classes} ${is_card_being_dragged ? dragging_classes : ""}`}
+      : `${classes} ${is_being_dragged ? dragging_classes : ""}`}
   >
     <slot />
   </div>

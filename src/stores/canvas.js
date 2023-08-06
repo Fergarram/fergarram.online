@@ -1,6 +1,5 @@
 import { writable } from "svelte/store";
 
-export const object_context_menu = writable(null);
 export const is_debug = writable(false);
 export const object_stack = writable([]);
 export const objects = writable({});
