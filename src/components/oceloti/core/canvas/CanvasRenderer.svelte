@@ -1,6 +1,6 @@
 <script>
   import { onMount, setContext } from "svelte";
-  import { ExponentialThrottler, throttle } from "../../../../utils";
+  import { throttle } from "../../../../utils";
   import { object_context_menu } from "../../../../stores/workspace";
   import {
     canvas_logs,
