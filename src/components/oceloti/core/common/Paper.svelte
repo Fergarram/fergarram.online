@@ -52,7 +52,7 @@
     const paper = papers.find((t) => t.id === id);
     const el = document.getElementById(`paper-element-${paper.id}`);
 
-    if (e.metaKey && e.key === "Enter") {
+    if (e.metaKey && e.shiftKey && e.key === "Enter") {
       e.preventDefault();
       e.stopPropagation();
       let x = 0;
