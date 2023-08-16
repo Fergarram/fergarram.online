@@ -61,7 +61,7 @@ module.exports = {
     },
     extend: {
       boxShadow: {
-        floor: "0 1px 3px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.23)",
+        floor: "0 1px 3px rgba(0,0,0,0.16), 0 1px 3px rgba(0,0,0,0.3)",
         grabbing:
           "0 1.25rem 3rem rgba(0, 0, 0, 0.30), 0 1rem 2rem rgba(0, 0, 0, 0.22)",
       },
