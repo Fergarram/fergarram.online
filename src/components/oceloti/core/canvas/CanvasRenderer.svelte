@@ -48,11 +48,11 @@
   const OCELOTI_CAMERA_STATE_LOCAL_STORAGE_KEY = "oceloti-stored-camera-state";
 
   let inner_canvas_ref = null;
+  let outer_canvas_ref = null;
   let window_width = 0;
   let window_height = 0;
   const PANNING_SPEED = 0.15;
-  const INITIAL_ZOOMING_SPEED = 18;
-  let ZOOMING_SPEED = INITIAL_ZOOMING_SPEED;
+  let ZOOMING_SPEED = 5;
   let is_mounted_in_browser = false;
   let is_trying_to_zoom = false;
   let panning_timeout = null;
@@ -98,9 +98,6 @@
             return;
           }
 
-          // @FIXME: Get a better delta for pinch zooming
-          // console.log(e.ctrlKey, e.wheelDelta, e.deltaY);
-
           if (e.ctrlKey) {
             e.preventDefault();
             start_zooming(true);
@@ -111,9 +108,9 @@
             }, 500);
           }
 
-          if (($is_meta_pressed || e.ctrlKey) && inner_canvas_ref) {
+          if (e.ctrlKey && inner_canvas_ref) {
             $is_panning = false;
-            $current_zoom += e.wheelDeltaY / ZOOMING_SPEED;
+            $current_zoom += -e.deltaY / ZOOMING_SPEED;
             if ($current_zoom <= min_zoom) $current_zoom = min_zoom;
             if ($current_zoom >= max_zoom) $current_zoom = max_zoom;
             $zoomed_origin_x = $last_mouse_x * (100 / $current_zoom);
@@ -148,19 +145,19 @@
       window.addEventListener("keydown", (e) => {
         $is_meta_pressed = e.key === "Meta";
 
-        start_zooming();
-        $is_zooming = true;
-
-        if (e.metaKey && e.key === "0") {
+        if (e.ctrlKey && e.key === "0") {
+          start_zooming();
+          $is_zooming = true;
           $current_zoom = 100;
         }
       });
 
       window.addEventListener("keyup", (e) => {
-        if (e.key === "Meta") {
-          stop_zooming();
-          $is_zooming = false;
-        }
+        $is_meta_pressed = !(e.key === "Meta");
+        // if (e.key === "Meta") {
+        //   stop_zooming();
+        //   $is_zooming = false;
+        // }
       });
     }
   });
@@ -195,7 +192,6 @@
   }
 
   function stop_zooming() {
-    $is_meta_pressed = false;
     is_trying_to_zoom = false;
     $last_zoom_origin_x = $last_mouse_x;
     $last_zoom_origin_y = $last_mouse_y;
@@ -210,11 +206,8 @@
   function start_zooming(pinch = false) {
     if (pinch) {
       stop_zooming();
-      ZOOMING_SPEED = INITIAL_ZOOMING_SPEED * 3;
-    } else {
-      ZOOMING_SPEED = INITIAL_ZOOMING_SPEED;
     }
-    if ((pinch || $is_meta_pressed) && !is_trying_to_zoom) {
+    if (pinch && !is_trying_to_zoom) {
       is_trying_to_zoom = true;
       $last_mouse_x = $relative_mouse_x;
       $last_mouse_y = $relative_mouse_y;
@@ -231,6 +224,13 @@
         $zoom_offset_y = $last_mouse_y - $zoomed_origin_y;
       }
     }
+  }
+
+  function handle_click_outside(e) {
+    // @TODO: LEFT HERE: I can add a new event to window so
+    // window.addEventListener("canvas-mousedown", () => {});
+    if (e.target === inner_canvas_ref || e.target === outer_canvas_ref)
+      console.log("click outside");
   }
 
   const log_zoom = throttle(() => {
@@ -269,6 +269,8 @@
 </script>
 
 <div
+  bind:this={outer_canvas_ref}
+  on:mousedown={handle_click_outside}
   class="overflow-hidden {classes}"
   style="
         background-color: {wallpaper.color || 'white'};

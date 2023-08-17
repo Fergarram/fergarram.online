@@ -1,16 +1,18 @@
 <script>
   import { onMount, tick } from "svelte";
   import CanvasObject from "../canvas/CanvasObject.svelte";
-  import { make_id } from "../../../../utils";
+  import sound_player, { make_id } from "../../../../utils";
+  import { is_meta_pressed } from "../../../../stores/canvas";
 
   let initial_papers_setup = false;
-  let current_unformatted_text = "";
   let papers = [
     {
       id: make_id(),
       x: 0,
       y: 0,
       content: "Edit this motherfucker",
+      can_focus: false,
+      is_focused: false,
     },
   ];
   const local_storage_key = "papers";
@@ -45,6 +47,8 @@
       x,
       y,
       content,
+      can_focus: false,
+      is_focused: false,
     });
     papers = papers;
     return id;
@@ -120,6 +124,7 @@
         y = paper.y + 100;
       }
       create_new_paper(x, y);
+      sound_player.play("new-paper");
     }
 
     // Handle delete command
@@ -133,6 +138,7 @@
       e.preventDefault();
       e.stopPropagation();
       delete_paper(paper.id);
+      sound_player.play("poof");
     }
 
     // Handle split line command
@@ -140,27 +146,88 @@
       e.preventDefault();
       e.stopPropagation();
       split_paper(el, paper);
+      sound_player.play("paper-rip");
     }
-    console.log(e.shiftKey, e.metaKey, e.key);
+
+    // Remove focus
+    if (paper && e.key === "Escape") {
+      paper.can_focus = false;
+      paper.is_focused = false;
+      papers = papers;
+    }
+
+    // console.log(e.shiftKey, e.metaKey, e.key);
+  }
+
+  function handle_focus_click(e, paper) {
+    if (e.metaKey && paper && paper.can_focus) {
+      paper.is_focused = true;
+      papers = papers;
+    }
+  }
+
+  function handle_paper_blur(id) {
+    if (papers[id]) {
+      papers[id].is_focused = false;
+      papers[id].can_focus = false;
+      papers = papers;
+    }
+  }
+
+  function handle_mouse_move(e, paper) {
+    if (e.metaKey && paper) {
+      paper.can_focus = true;
+      papers = papers;
+    } else if (paper && !paper.is_focused) {
+      paper.can_focus = false;
+      papers = papers;
+    }
+  }
+
+  function handle_mouse_leave(e, paper) {
+    if (!paper.is_focused && paper.can_focus) {
+      paper.can_focus = false;
+      papers = papers;
+    }
   }
 </script>
 
 {#each papers as paper}
-  <CanvasObject bind:x={paper.x} bind:y={paper.y} show_shadow={true}>
+  <CanvasObject
+    bind:x={paper.x}
+    bind:y={paper.y}
+    show_shadow={true}
+    can_drag={!paper.can_focus}
+  >
     <div
       id={paper.id}
-      class="flex flex-col gap-1 w-96 min-h-96 bg-gray-200 p-5 bg-blend-lighten bg-cover"
+      class="flex flex-col gap-1 w-96 min-h-96 bg-gray-200 bg-blend-lighten bg-cover {paper.can_focus |
+      paper.is_focused
+        ? 'outline outline-4 outline-red-500'
+        : ''}"
       style="background-image: url(/textures/grain.jpg);"
-      data-draggable
+      on:click={(e) => handle_focus_click(e, paper)}
+      on:mousemove={(e) => handle_mouse_move(e, paper)}
+      on:mouseleave={(e) => handle_mouse_leave(e, paper)}
     >
-      <div
-        id="paper-element-{paper.id}"
-        class="focus:outline-none font-mono tracking-mono leading-135"
-        spellcheck="false"
-        contenteditable="plaintext-only"
-        on:keydown={(e) => handle_keydown(e, paper.id)}
-        bind:innerHTML={paper.content}
-      />
+      {#if paper.can_focus || paper.is_focused}
+        <div
+          id="paper-element-{paper.id}"
+          class="focus:outline-none font-mono tracking-mono leading-135 p-5"
+          spellcheck="false"
+          contenteditable="plaintext-only"
+          on:blur={() => handle_paper_blur(paper.id)}
+          on:keydown={(e) => handle_keydown(e, paper.id)}
+          bind:innerHTML={paper.content}
+        />
+      {:else}
+        <div
+          id="paper-element-{paper.id}"
+          class="font-mono tracking-mono leading-135 p-5 select-none cursor-grab"
+        >
+          {@html paper.content.replace(/\n/g, "<br>")}
+        </div>
+      {/if}
     </div>
   </CanvasObject>
 {/each}

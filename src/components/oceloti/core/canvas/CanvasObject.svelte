@@ -19,6 +19,7 @@
   export let visible = true;
   export let styles = "";
   export let show_shadow = true;
+  export let can_drag = true;
 
   let resize_observer;
   let is_mounted = false;
@@ -65,6 +66,7 @@
   }
 
   function drag_mouse_down(e) {
+    if (!can_drag) return;
     if (e.button !== 0) return;
     $object_context_menu = null;
 
@@ -121,14 +123,6 @@
     delete $objects[id];
   });
 
-  $: if (object_el) {
-    const draggables = [...object_el.querySelectorAll("[data-draggable]")];
-    draggables.forEach((el) => {
-      el.addEventListener("mousedown", drag_mouse_down);
-      el.classList.add("hover:cursor-grab");
-    });
-  }
-
   $: z = $object_stack.indexOf(id);
 
   $: if (object_el) {
@@ -158,6 +152,7 @@
 >
   <div
     {id}
+    on:mousedown={drag_mouse_down}
     style={styles}
     class={show_shadow
       ? `shadow-floor transition ${classes} ${

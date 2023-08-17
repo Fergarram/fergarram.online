@@ -44,7 +44,7 @@
 </script>
 
 <CanvasObject x={0} y={0} show_shadow={true}>
-  <div class="flex flex-col gap-1 max-w-72 bg-amber-200 p-5" data-draggable>
+  <div class="flex flex-col gap-1 max-w-72 bg-amber-200 p-5">
     <Text fontClasses="text-16 font-semibold" classes="mb-2">Focus Pocus</Text>
     {#each todo as item}
       <span class="flex items-center gap-2 {item.checked ? '' : 'opacity-20'}">

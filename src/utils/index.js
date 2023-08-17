@@ -135,3 +135,90 @@ export function slugify(str) {
 
   return str;
 }
+
+class SoundPlayer {
+  constructor() {
+    this.audio_context = null;
+    this.loaded_sounds = new Map();
+    this.current_source = null;
+    this.current_sound = null;
+    this.playback_time = 0; // For maintaining playback position
+    this.is_mute = false;
+  }
+
+  initialize() {
+    if (this.audio_context === null)
+      this.audio_context = new (window.AudioContext ||
+        window.webkitAudioContext)();
+  }
+
+  async load_files(files_array) {
+    for (const { name, file } of files_array) {
+      try {
+        const response = await fetch(file);
+        const buffer = await response.arrayBuffer();
+        const decoded_data = await this.audio_context.decodeAudioData(buffer);
+        this.loaded_sounds.set(name, decoded_data);
+      } catch (error) {
+        console.error(`Failed to load sound "${name}": ${error.message}`);
+      }
+    }
+  }
+
+  stop_current_source() {
+    if (this.current_source) {
+      this.current_source.disconnect();
+      this.current_source.stop();
+      this.current_source = null;
+    }
+  }
+
+  seek(position_ms) {
+    if (!this.current_sound) {
+      console.error("No sound has been played yet.");
+      return;
+    }
+    this.playback_time = position_ms / 1000; // Convert ms to seconds
+    this.play(this.current_sound, this.playback_time);
+  }
+
+  play(name, start_time_s = 0) {
+    if (this.is_mute) return;
+    const sound = this.loaded_sounds.get(name);
+    if (!sound) {
+      console.error(`Sound "${name}" not found.`);
+      return;
+    }
+
+    this.stop_current_source();
+
+    const source = this.audio_context.createBufferSource();
+    source.buffer = sound;
+    source.connect(this.audio_context.destination);
+    source.start(0, start_time_s);
+
+    this.current_sound = name;
+    this.current_source = source;
+    this.playback_time = start_time_s;
+
+    source.onended = () => {
+      this.playback_time = 0;
+    };
+  }
+
+  pause() {
+    if (!this.current_source) {
+      return;
+    }
+    this.playback_time +=
+      this.audio_context.currentTime - this.current_source.startTime;
+    this.stop_current_source();
+  }
+
+  stop() {
+    this.playback_time = 0;
+    this.stop_current_source();
+  }
+}
+const sound_player = new SoundPlayer();
+export default sound_player;
