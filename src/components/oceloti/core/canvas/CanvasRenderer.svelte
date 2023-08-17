@@ -227,10 +227,12 @@
   }
 
   function handle_click_outside(e) {
-    // @TODO: LEFT HERE: I can add a new event to window so
-    // window.addEventListener("canvas-mousedown", () => {});
-    if (e.target === inner_canvas_ref || e.target === outer_canvas_ref)
-      console.log("click outside");
+    if (e.target === inner_canvas_ref || e.target === outer_canvas_ref) {
+      const custom_event = new CustomEvent("canvas-mousedown", {
+        detail: { mouse_event: e },
+      });
+      window.dispatchEvent(custom_event);
+    }
   }
 
   const log_zoom = throttle(() => {

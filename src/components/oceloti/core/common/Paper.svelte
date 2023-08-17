@@ -2,7 +2,8 @@
   import { onMount, tick } from "svelte";
   import CanvasObject from "../canvas/CanvasObject.svelte";
   import sound_player, { make_id } from "../../../../utils";
-  import { is_meta_pressed } from "../../../../stores/canvas";
+
+  const local_storage_key = "papers";
 
   let initial_papers_setup = false;
   let papers = [
@@ -15,24 +16,6 @@
       is_focused: false,
     },
   ];
-  const local_storage_key = "papers";
-
-  onMount(() => {
-    if (!initial_papers_setup) {
-      const local_papers = localStorage.getItem(local_storage_key);
-      if (local_papers !== null) {
-        papers = JSON.parse(local_papers);
-        initial_papers_setup = true;
-      } else {
-        localStorage.setItem(local_storage_key, JSON.stringify(papers));
-        initial_papers_setup = true;
-      }
-    }
-  });
-
-  $: if (initial_papers_setup) {
-    localStorage.setItem(local_storage_key, JSON.stringify(papers)); // Reactivity comes from using _papers_ as arg.
-  }
 
   function delete_paper(id) {
     const i = papers.findIndex((t) => t.id === id);
@@ -190,6 +173,35 @@
       papers = papers;
     }
   }
+
+  function unfocus_all_papers(e) {
+    if (papers) {
+      papers.forEach((p) => {
+        p.can_focus = false;
+        p.is_focused = false;
+      });
+      papers = papers;
+    }
+  }
+
+  onMount(() => {
+    if (!initial_papers_setup) {
+      const local_papers = localStorage.getItem(local_storage_key);
+      if (local_papers !== null) {
+        papers = JSON.parse(local_papers);
+        initial_papers_setup = true;
+      } else {
+        localStorage.setItem(local_storage_key, JSON.stringify(papers));
+        initial_papers_setup = true;
+      }
+    }
+
+    window.addEventListener("canvas-mousedown", unfocus_all_papers);
+  });
+
+  $: if (initial_papers_setup) {
+    localStorage.setItem(local_storage_key, JSON.stringify(papers)); // Reactivity comes from using _papers_ as arg.
+  }
 </script>
 
 {#each papers as paper}
@@ -213,7 +225,7 @@
       {#if paper.can_focus || paper.is_focused}
         <div
           id="paper-element-{paper.id}"
-          class="focus:outline-none font-mono tracking-mono leading-135 p-5"
+          class="flex grow w-full h-full focus:outline-none font-mono tracking-mono leading-135 p-5"
           spellcheck="false"
           contenteditable="plaintext-only"
           on:blur={() => handle_paper_blur(paper.id)}
@@ -223,7 +235,7 @@
       {:else}
         <div
           id="paper-element-{paper.id}"
-          class="font-mono tracking-mono leading-135 p-5 select-none cursor-grab"
+          class="flex grow w-full h-full font-mono tracking-mono leading-135 p-5 select-none cursor-grab"
         >
           {@html paper.content.replace(/\n/g, "<br>")}
         </div>
