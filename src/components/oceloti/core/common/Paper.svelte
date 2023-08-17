@@ -1,7 +1,7 @@
 <script>
   import { onMount, tick } from "svelte";
   import CanvasObject from "../canvas/CanvasObject.svelte";
-  import sound_player, { make_id } from "../../../../utils";
+  import sound_player, { make_id, set_caret_position } from "../../../../utils";
 
   const local_storage_key = "papers";
 
@@ -11,7 +11,7 @@
       id: make_id(),
       x: 0,
       y: 0,
-      content: "Edit this motherfucker",
+      content: "Edit this fucker",
       can_focus: false,
       is_focused: false,
     },
@@ -31,7 +31,13 @@
       y,
       content,
       can_focus: false,
-      is_focused: false,
+      is_focused: true,
+    });
+    unfocus_all_papers(null, id);
+    tick().then(() => {
+      const el = document.getElementById(`paper-element-${id}`);
+      el.focus();
+      set_caret_position(el, -1);
     });
     papers = papers;
     return id;
@@ -87,8 +93,6 @@
 
         create_new_paper(new_x, new_y, second_slice);
       });
-    } else {
-      console.log(currentNode); // For non-text nodes
     }
   }
 
@@ -145,6 +149,7 @@
   function handle_focus_click(e, paper) {
     if (e.metaKey && paper && paper.can_focus) {
       paper.is_focused = true;
+      unfocus_all_papers(null, paper.id);
       papers = papers;
     }
   }
@@ -174,9 +179,10 @@
     }
   }
 
-  function unfocus_all_papers(e) {
+  function unfocus_all_papers(e, exception_id = null) {
     if (papers) {
       papers.forEach((p) => {
+        if (p.id === exception_id) return;
         p.can_focus = false;
         p.is_focused = false;
       });
@@ -215,7 +221,7 @@
       id={paper.id}
       class="flex flex-col gap-1 w-96 min-h-96 bg-gray-200 bg-blend-lighten bg-cover {paper.can_focus |
       paper.is_focused
-        ? 'outline outline-4 outline-red-500'
+        ? 'outline outline-4 outline-purple-500'
         : ''}"
       style="background-image: url(/textures/grain.jpg);"
       on:click={(e) => handle_focus_click(e, paper)}

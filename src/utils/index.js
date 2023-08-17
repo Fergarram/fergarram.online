@@ -222,3 +222,53 @@ class SoundPlayer {
 }
 const sound_player = new SoundPlayer();
 export default sound_player;
+
+export function set_caret_position(element, position) {
+  const range = document.createRange();
+  const sel = window.getSelection();
+
+  let char_count = 0;
+  let target_node = null;
+  let last_text_node = null;
+
+  (function find_target_node(node) {
+    if (char_count > position && position !== -1) {
+      // Stop recursive function when position is found
+      return;
+    }
+
+    if (node.nodeType === Node.TEXT_NODE) {
+      const node_length = node.nodeValue.length;
+
+      // Track the last text node found
+      last_text_node = node;
+
+      if (char_count + node_length >= position) {
+        target_node = node;
+      } else {
+        char_count += node_length;
+      }
+    } else {
+      // Dive into child nodes if it's not a text node
+      for (let i = 0; i < node.childNodes.length; i++) {
+        find_target_node(node.childNodes[i]);
+      }
+    }
+  })(element);
+
+  if (position === -1 && last_text_node) {
+    target_node = last_text_node;
+    position = target_node.nodeValue.length; // Move to the end of the last text node
+  }
+
+  if (target_node) {
+    range.setStart(
+      target_node,
+      position !== -1 ? position - char_count : position
+    );
+    range.collapse(true);
+
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+}
