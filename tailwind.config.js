@@ -47,6 +47,7 @@ module.exports = {
       title: "-0.05em",
       subtitle: "-0.03em",
       paragraph: "-0.01em",
+      serif: "0.025em",
       mono: "0.05em",
     },
     screens: {

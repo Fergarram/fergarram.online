@@ -1,21 +1,21 @@
 <script>
   import { onMount, tick } from "svelte";
-  import CanvasObject from "../canvas/CanvasObject.svelte";
-  import { make_id, set_caret_position, sound_player } from "../../../../utils";
+  import CanvasObject from "../oceloti/core/canvas/CanvasObject.svelte";
+  import { sound_player, make_id, set_caret_position } from "../../utils";
 
-  const local_storage_key = "papers";
+  const local_storage_key = "fancy_papers";
+
+  const og_paper = {
+    id: make_id(),
+    x: 0,
+    y: 0,
+    content: "Edit me, madam",
+    can_focus: false,
+    is_focused: false,
+  };
 
   let initial_papers_setup = false;
-  let papers = [
-    {
-      id: make_id(),
-      x: 0,
-      y: 0,
-      content: "Edit this fucker",
-      can_focus: false,
-      is_focused: false,
-    },
-  ];
+  let papers = [ og_paper ];
 
   function delete_paper(id) {
     const i = papers.findIndex((t) => t.id === id);
@@ -195,6 +195,9 @@
       const local_papers = localStorage.getItem(local_storage_key);
       if (local_papers !== null) {
         papers = JSON.parse(local_papers);
+        if (papers.length === 0) {
+          papers = [ og_paper ];
+        }
         initial_papers_setup = true;
       } else {
         localStorage.setItem(local_storage_key, JSON.stringify(papers));
@@ -206,11 +209,11 @@
   });
 
   $: if (initial_papers_setup) {
-    localStorage.setItem(local_storage_key, JSON.stringify(papers)); // Reactivity comes from using _papers_ as arg.
+    localStorage.setItem(local_storage_key, JSON.stringify(papers));
   }
 </script>
 
-{#each papers as paper}
+{#each papers as paper, pi}
   <CanvasObject
     bind:x={paper.x}
     bind:y={paper.y}
@@ -219,7 +222,7 @@
   >
     <div
       id={paper.id}
-      class="flex flex-col gap-1 w-96 min-h-96 bg-gray-200 bg-blend-lighten bg-repeat {paper.can_focus |
+      class="relative flex flex-col gap-1 px-32 py-28 w-256 min-h-256 bg-gray-200 bg-blend-lighten bg-repeat {paper.can_focus |
       paper.is_focused
         ? 'outline outline-4 outline-purple-500'
         : ''}"
@@ -228,10 +231,13 @@
       on:mousemove={(e) => handle_mouse_move(e, paper)}
       on:mouseleave={(e) => handle_mouse_leave(e, paper)}
     >
+      <div class="p-5 flex justify-center uppercase">
+        <h2 contenteditable="plaintext-only" class="font-serif text-28">FIRST-LETTER PSEUDO ELEMENT</h2>
+      </div>
       {#if paper.can_focus || paper.is_focused}
         <div
           id="paper-element-{paper.id}"
-          class="flex grow w-full h-full focus:outline-none font-mono tracking-mono leading-135 p-5"
+          class="block grow w-full h-full focus:outline-none font-serif text-justify tracking-serif text-20 leading-135 p-5 first-letter:text-48 first-letter:mr-3 first-letter:float-left first-letter:leading-100"
           spellcheck="false"
           contenteditable="plaintext-only"
           on:blur={() => handle_paper_blur(paper)}
@@ -241,11 +247,14 @@
       {:else}
         <div
           id="paper-element-{paper.id}"
-          class="flex grow w-full h-full font-mono tracking-mono leading-135 p-5 select-none cursor-grab"
+          class="block grow w-full h-full font-serif text-justify tracking-serif text-20 leading-135 p-5 select-none cursor-grab first-letter:text-48 first-letter:mr-3 first-letter:float-left first-letter:leading-100"
         >
-          {@html paper.content.replace(/\n/g, "<br>")}
+          {@html paper.content.replace(/\n/g, "<br>").trim()}
         </div>
       {/if}
+      <span class="absolute bottom-6 right-8 text-italic text-14 font-serif opacity-50 text-right">
+        {pi + 1}
+      </span>
     </div>
   </CanvasObject>
 {/each}

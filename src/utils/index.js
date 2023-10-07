@@ -220,8 +220,8 @@ class SoundPlayer {
     this.stop_current_source();
   }
 }
-const sound_player = new SoundPlayer();
-export default sound_player;
+
+export const sound_player = new SoundPlayer();
 
 export function set_caret_position(element, position) {
   const range = document.createRange();
