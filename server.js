@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+const fetch = require("node-fetch");
 
 const target_url = `https://api.are.na/v2/channels/fergarram-online/contents?page=1&per=100`;
 
