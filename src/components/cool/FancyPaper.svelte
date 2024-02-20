@@ -222,7 +222,7 @@
   >
     <div
       id={paper.id}
-      class="relative flex flex-col gap-1 px-32 py-28 w-256 min-h-256 bg-gray-200 bg-blend-lighten bg-repeat {paper.can_focus |
+      class="relative flex flex-col gap-1 px-24 py-24 w-196 min-h-196 bg-gray-200 bg-blend-lighten bg-repeat {paper.can_focus |
       paper.is_focused
         ? 'outline outline-4 outline-purple-500'
         : ''}"
@@ -232,12 +232,12 @@
       on:mouseleave={(e) => handle_mouse_leave(e, paper)}
     >
       <div class="p-5 flex justify-center uppercase">
-        <h2 contenteditable="plaintext-only" class="font-serif text-28">FIRST-LETTER PSEUDO ELEMENT</h2>
+        <h2 contenteditable="plaintext-only" class="font-serif text-24">FIRST-LETTER PSEUDO ELEMENT</h2>
       </div>
       {#if paper.can_focus || paper.is_focused}
         <div
           id="paper-element-{paper.id}"
-          class="block grow w-full h-full focus:outline-none font-serif text-justify tracking-serif text-20 leading-135 p-5 first-letter:text-48 first-letter:mr-3 first-letter:float-left first-letter:leading-100"
+          class="block grow w-full h-full focus:outline-none font-serif text-justify tracking-serif text-16 leading-135 p-5 first-letter:text-48 first-letter:mr-3 first-letter:float-left first-letter:leading-100"
           spellcheck="false"
           contenteditable="plaintext-only"
           on:blur={() => handle_paper_blur(paper)}
@@ -247,12 +247,12 @@
       {:else}
         <div
           id="paper-element-{paper.id}"
-          class="block grow w-full h-full font-serif text-justify tracking-serif text-20 leading-135 p-5 select-none cursor-grab first-letter:text-48 first-letter:mr-3 first-letter:float-left first-letter:leading-100"
+          class="block grow w-full h-full font-serif text-justify tracking-serif text-16 leading-135 p-5 select-none cursor-grab first-letter:text-48 first-letter:mr-3 first-letter:float-left first-letter:leading-100"
         >
           {@html paper.content.replace(/\n/g, "<br>").trim()}
         </div>
       {/if}
-      <span class="absolute bottom-6 right-8 text-italic text-14 font-serif opacity-50 text-right">
+      <span class="select-none absolute bottom-6 right-8 text-italic text-14 font-serif opacity-50 text-right">
         {pi + 1}
       </span>
     </div>

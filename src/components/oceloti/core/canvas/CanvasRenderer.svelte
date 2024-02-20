@@ -31,7 +31,6 @@
     zoomed_origin_y,
     zoom_offset_x,
     zoom_offset_y,
-    is_meta_pressed,
     is_debug,
   } from "../../../../stores/canvas";
   import CanvasDebug from "./CanvasDebug.svelte";
@@ -43,7 +42,6 @@
   export let grid_size = 24;
   export let min_zoom = 10;
   export let max_zoom = 200;
-  let has_local_camera_state_been_stored = false;
 
   const OCELOTI_CAMERA_STATE_LOCAL_STORAGE_KEY = "oceloti-stored-camera-state";
 
@@ -57,6 +55,9 @@
   let is_trying_to_zoom = false;
   let panning_timeout = null;
   let zooming_timeout = null;
+  let initial_touch_distance = 0;
+  let last_touch_x = null;
+  let last_touch_y = null;
 
   setContext("canvas-renderer", {
     should_snap() {
@@ -68,17 +69,6 @@
     if (window) {
       is_mounted_in_browser = true;
 
-      if (!has_local_camera_state_been_stored) {
-        const local_stored_camera_state = localStorage.getItem(
-          OCELOTI_CAMERA_STATE_LOCAL_STORAGE_KEY
-        );
-        if (local_stored_camera_state !== null) {
-          update_camera_from_storage(JSON.parse(local_stored_camera_state));
-        } else {
-          save_camera_state_on_storage();
-        }
-      }
-
       window_width = window.innerWidth;
       window_height = window.innerHeight;
 
@@ -89,6 +79,53 @@
 
       if (!zoomable) return;
 
+      window.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 1) {
+          last_touch_x = e.touches[0].clientX;
+          last_touch_y = e.touches[0].clientY;
+        }
+
+        if (e.touches.length === 2) { // Two fingers for zoom
+          initial_touch_distance = Math.hypot(
+            e.touches[0].pageX - e.touches[1].pageX,
+            e.touches[0].pageY - e.touches[1].pageY
+          );
+        }
+      });
+
+      window.addEventListener("touchmove", (e) => {
+        if (e.touches.length === 1) { // Single touch for panning
+          const current_touch_x = e.touches[0].clientX;
+          const current_touch_y = e.touches[0].clientY;
+
+          const delta_x = current_touch_x - last_touch_x;
+          const delta_y = current_touch_y - last_touch_y;
+
+          $world_x += delta_x * PANNING_SPEED;
+          $world_y += delta_y * PANNING_SPEED;
+
+          last_touch_x = current_touch_x;
+          last_touch_y = current_touch_y;
+
+          $is_panning = true;
+          clearTimeout(panning_timeout);
+          panning_timeout = setTimeout(() => {
+            $is_panning = false;
+          }, 500);
+        }
+        if (e.touches.length === 2) {
+          // @FIXME: Disable native pinch zoom on mobile
+          const new_distance = Math.hypot(
+            e.touches[0].pageX - e.touches[1].pageX,
+            e.touches[0].pageY - e.touches[1].pageY
+          );
+          const zoom_factor = new_distance / initial_touch_distance;
+
+          $current_zoom *= zoom_factor;
+          initial_touch_distance = new_distance;
+        }
+      });
+
       window.addEventListener(
         "wheel",
         (e) => {
@@ -98,9 +135,9 @@
             return;
           }
 
-          if (e.ctrlKey) {
+          if ((e.ctrlKey || e.metaKey)) {
             e.preventDefault();
-            start_zooming(true);
+            start_zooming();
             $is_zooming = true;
             clearTimeout(zooming_timeout);
             zooming_timeout = setTimeout(() => {
@@ -108,7 +145,7 @@
             }, 500);
           }
 
-          if (e.ctrlKey && inner_canvas_ref) {
+          if ((e.ctrlKey || e.metaKey) && inner_canvas_ref) {
             $is_panning = false;
             $current_zoom += -e.deltaY / ZOOMING_SPEED;
             if ($current_zoom <= min_zoom) $current_zoom = min_zoom;
@@ -143,53 +180,14 @@
       });
 
       window.addEventListener("keydown", (e) => {
-        $is_meta_pressed = e.key === "Meta";
-
-        if (e.ctrlKey && e.key === "0") {
-          start_zooming();
+        if ((e.ctrlKey || e.metaKey) && e.key === "0") {
           $is_zooming = true;
           $current_zoom = 100;
+          start_zooming();
         }
-      });
-
-      window.addEventListener("keyup", (e) => {
-        $is_meta_pressed = !(e.key === "Meta");
-        // if (e.key === "Meta") {
-        //   stop_zooming();
-        //   $is_zooming = false;
-        // }
       });
     }
   });
-
-  function update_camera_from_storage(stored_state) {
-    $background_x = stored_state.background_x;
-    $background_y = stored_state.background_y;
-    $current_zoom = stored_state.current_zoom;
-    $world_x = stored_state.world_x;
-    $world_y = stored_state.world_y;
-    $zoom_translation_x = stored_state.zoom_translation_x;
-    $zoom_translation_y = stored_state.zoom_translation_y;
-    has_local_camera_state_been_stored = true;
-  }
-
-  function save_camera_state_on_storage() {
-    if (!is_mounted_in_browser) return;
-
-    localStorage.setItem(
-      OCELOTI_CAMERA_STATE_LOCAL_STORAGE_KEY,
-      JSON.stringify({
-        background_x: $background_x,
-        background_y: $background_y,
-        current_zoom: $current_zoom,
-        world_x: $world_x,
-        world_y: $world_y,
-        zoom_translation_x: $zoom_translation_x,
-        zoom_translation_y: $zoom_translation_y,
-      })
-    );
-    has_local_camera_state_been_stored = true;
-  }
 
   function stop_zooming() {
     is_trying_to_zoom = false;
@@ -203,26 +201,18 @@
     $last_mouse_y = 0;
   }
 
-  function start_zooming(pinch = false) {
-    if (pinch) {
-      stop_zooming();
-    }
-    if (pinch && !is_trying_to_zoom) {
+  function start_zooming() {
+    stop_zooming();
+
+    if (!is_trying_to_zoom) {
       is_trying_to_zoom = true;
       $last_mouse_x = $relative_mouse_x;
       $last_mouse_y = $relative_mouse_y;
 
-      if ($current_zoom !== 100) {
-        $zoom_translation_x -= $last_mouse_x;
-        $zoom_translation_y -= $last_mouse_y;
-        $zoom_translation_x += $last_mouse_x * ($current_zoom / 100);
-        $zoom_translation_y += $last_mouse_y * ($current_zoom / 100);
-      } else {
-        $zoomed_origin_x = $last_mouse_x * (100 / $current_zoom);
-        $zoomed_origin_y = $last_mouse_y * (100 / $current_zoom);
-        $zoom_offset_x = $last_mouse_x - $zoomed_origin_x;
-        $zoom_offset_y = $last_mouse_y - $zoomed_origin_y;
-      }
+      $zoom_translation_x -= $last_mouse_x;
+      $zoom_translation_y -= $last_mouse_y;
+      $zoom_translation_x += $last_mouse_x * ($current_zoom / 100);
+      $zoom_translation_y += $last_mouse_y * ($current_zoom / 100);
     }
   }
 
@@ -266,8 +256,6 @@
     if ($current_zoom >= max_zoom) $current_zoom = max_zoom;
     log_zoom();
   }
-
-  $: save_camera_state_on_storage($is_zooming, $is_panning, $is_dragging);
 </script>
 
 <div
@@ -295,9 +283,7 @@
                 transform-origin: {$last_mouse_x}px {$last_mouse_y}px;
             "
     >
-      {#if has_local_camera_state_been_stored}
-        <slot />
-      {/if}
+      <slot />
       {#if $is_debug}
         <CanvasDebug />
       {/if}

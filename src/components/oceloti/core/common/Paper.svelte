@@ -219,7 +219,7 @@
   >
     <div
       id={paper.id}
-      class="flex flex-col gap-1 w-96 min-h-96 bg-gray-200 bg-blend-lighten bg-repeat {paper.can_focus |
+      class="flex flex-col gap-1 w-80 min-h-80 bg-gray-200 bg-blend-lighten bg-repeat {paper.can_focus |
       paper.is_focused
         ? 'outline outline-4 outline-purple-500'
         : ''}"
@@ -231,7 +231,7 @@
       {#if paper.can_focus || paper.is_focused}
         <div
           id="paper-element-{paper.id}"
-          class="flex grow w-full h-full focus:outline-none font-mono tracking-mono leading-135 p-5"
+          class="flex grow w-full h-full focus:outline-none font-mono text-14 tracking-mono leading-135 p-5"
           spellcheck="false"
           contenteditable="plaintext-only"
           on:blur={() => handle_paper_blur(paper)}
@@ -241,7 +241,7 @@
       {:else}
         <div
           id="paper-element-{paper.id}"
-          class="flex grow w-full h-full font-mono tracking-mono leading-135 p-5 select-none cursor-grab"
+          class="flex grow w-full h-full font-mono text-14 tracking-mono leading-135 p-5 select-none cursor-grab"
         >
           {@html paper.content.replace(/\n/g, "<br>")}
         </div>

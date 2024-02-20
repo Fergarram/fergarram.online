@@ -14,16 +14,25 @@
   let sound_off = true;
   let wallpaper = {
     // url: "https://d2w9rnfcy7mm78.cloudfront.net/14400761/original_af9888e4f220975392bb0dc8a441e38f.jpg?1639842153?bc=0",
-    url: "https://d2w9rnfcy7mm78.cloudfront.net/12922690/original_984bf65b44e5fdea0e8d38891595266b.jpg",
-    // url: "https://d2w9rnfcy7mm78.cloudfront.net/2880285/original_d1459f5c36e8d1a6f3953b9e9f4abf30.gif?1539698587?bc=1",
+    // url: "https://d2w9rnfcy7mm78.cloudfront.net/12922690/original_984bf65b44e5fdea0e8d38891595266b.jpg",
+    // url: "https://d2w9rnfcy7mm78.cloudfront.net/21719417/original_a4dd76628507105bd8925f400fbc1532.png?1683442212?bc=0",
+
+    // url: "https://d2w9rnfcy7mm78.cloudfront.net/813262/original_deb74bfc85f525f552829d4cf9ab5ff5.png?1482811188?bc=1",
+
     // url: "https://d2w9rnfcy7mm78.cloudfront.net/22921013/original_3fb648095b7accf353940dadb8b5f2ef.jpg?1690922768?bc=0",
     // url: "https://d2w9rnfcy7mm78.cloudfront.net/12081292/original_b10faaf9c1561f086fc14844c9424eee.jpg?1622062452?bc=0",
     // url: "https://d2w9rnfcy7mm78.cloudfront.net/12093897/original_b63de94728071090bcb2e54f0f588d5f.png?1622146473?bc=0",
     // url: "https://d2w9rnfcy7mm78.cloudfront.net/21819570/original_9c78769417fbc76591a83c31923eea3f.gif?1684014592?bc=0",
     // url: "https://d2w9rnfcy7mm78.cloudfront.net/23211531/original_df88fe97ba68068f334ad0fe6d9d0076.png?1692305738?bc=0",
     // url: "https://d2w9rnfcy7mm78.cloudfront.net/21914731/original_278a80cb0cf3068c656e50fe88a44d26.jpg?1684614299?bc=0",
-    // url: "/wallpapers/corcho.jpg",
-    width: 1024,
+    url: "/wallpapers/test.jpg",
+    // url: "https://d2w9rnfcy7mm78.cloudfront.net/2279588/original_3dea05dd766140033483dd78e04424dd.gif?1528414613?bc=1",
+    // width: 500,
+    width: 1400,
+    // url: "/wallpapers/back.svg",
+    // url: "/wallpapers/back.svg",
+    // width: 48,
+    // color: "#3057E1"
   };
 
   function enable_sounds() {
@@ -89,6 +98,13 @@
     // Usage
     // fetch_collections();
     // fetch_blocks();
+
+    if ("ontouchstart" in document.documentElement) {
+      console.log("your device is a touch screen device.");
+
+    } else {
+     console.log("your device is NOT a touch device");
+    }
   });
 </script>
 
