@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 
-load_env();
+// load_env();
 generate_site();
 
 async function load_user() {
