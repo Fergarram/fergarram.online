@@ -76,7 +76,7 @@ async function generate_site() {
         }
 
         if (placeholders.title && placeholders.description) {
-          create_page("post.html", placeholders, `public${placeholders.url}`);
+          if (!placeholders.image) create_page("post.html", placeholders, `public${placeholders.url}`);
           article_list += `
             <article class="full-post">
               <header>
