@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<title>{{{title}}} - {{{site_author}}}</title>
+	<meta name="description" content="{{{description}}}">
+    <meta name="author" content="{{{author}}}">
+    <meta name="robots" content="index, follow">
+
+	<link rel="stylesheet" type="text/css" href="/index.css">
+</head>
+<body>
+	<header>
+		<a href="{{{site_author_url}}}" class="site-title">{{{site_author}}}</a>
+		<div class="site-header">
+			<nav>
+				{{{nav_links}}}
+			</nav>
+			<p id="clock">
+				<span class="nowrap">TIMEZONE</span>
+				<span class="nowrap">[GMT-6]</span>
+			</p>
+		</div>
+	</header>
+	<main>
+		<article>
+			<header>
+				<h1>{{{title}}}</h1>
+				<p>{{{created_at}}}</p>
+			</header>
+			{{{content}}}
+			<p style="font-style: italic; opacity: 0.5;">
+            — <a href="{{{author_url}}}">{{{author}}}</a>
+          </p>
+		</article>
+	</main>
+	<script>
+		function log_mexico_city_time() {
+		  setInterval(() => {
+		    const utc_offset = -6; // Mexico City's UTC offset
+		    const now = new Date();
+		    const local_time = new Date(now.getTime() + utc_offset * 3600 * 1000);
+
+		    let hours = local_time.getUTCHours();
+		    let sleeping = (hours >= 19 || hours < 7) ? "it's late" : "my time";
+
+		    hours = hours.toString().padStart(2, '0');
+		    const minutes = local_time.getUTCMinutes().toString().padStart(2, '0');
+		    const seconds = local_time.getUTCSeconds().toString().padStart(2, '0');
+
+		    const el = document.getElementById('clock');
+		    el.firstElementChild.innerText = `${sleeping}`;
+		    el.lastElementChild.innerText = `${hours}:${minutes}:${seconds}`;
+		  }, 1000);
+		}
+
+		log_mexico_city_time();
+	</script>
+</body>
+</html>
