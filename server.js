@@ -9,7 +9,7 @@ async function load_posts() {
       },
     });
 
-    const data = await proxy_response.json();
+    const data = await response.json();
     console.log("I should create html files from here.", data);
 
   } catch (e) {
