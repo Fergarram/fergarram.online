@@ -1,14 +1,3 @@
-### Elder.js ###
-/___ELDER___/
-/node_modules/
-/public/
-/build/
-/src/routes/**/vault
-/src/routes/**/vault/
-
-# Created by https://www.toptal.com/developers/gitignore/api/node,windows,macos,linux
-# Edit at https://www.toptal.com/developers/gitignore?templates=node,windows,macos,linux
-
 ### Linux ###
 *~
 
