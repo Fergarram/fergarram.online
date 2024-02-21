@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 
-// load_env();
+if (!process.env.IS_VERCEL) load_env();
 generate_site();
 
 async function load_user() {
@@ -36,25 +36,38 @@ async function get_channel_contents(id) {
   });
 }
 
+async function get_channel_info(id) {
+  const endpoint = `https://api.are.na/v2/channels/${id}/thumb`;
+  return await fetch(endpoint, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${process.env.DANGER_ARENA_TOKEN}`,
+    },
+  });
+}
+
 async function generate_site() {
   try {
     const user_session = await load_user();
 
+    const site_channel = await get_channel_info("fergarram-online");
+    const site_details = await site_channel.json();
+
+    const response = await get_channel_contents("fergarram-online");
+    const { contents } = await response.json();
+
     const global_placeholders = {
       site_title: "fergarram.online",
+      site_arena: `https://are.na/${user_session.slug}/${site_details.slug}/`,
       site_description: `${user_session.full_name}'s generated are.na site.`,
       site_author: user_session.full_name,
       site_author_url: `https://are.na/${user_session.slug}/`,
     };
-
-    const response = await get_channel_contents("fergarram-online");
-
-    const { contents } = await response.json();
     
     const channels = contents.filter(b => b.class === "Channel");
 
     const generate_posts_for_page = (contents, parent) => {
-      let article_list = "";
+      let article_list = contents.length === 0 ? `<p class="empty-state">Nothing yet.</p>` : "";
       contents.forEach(block => {
         if (block.class !== "Text" && block.class !== "Image") return;
 
@@ -72,7 +85,7 @@ async function generate_site() {
           nav_links: channels.reduce((acc, b) => {
             const tag = `<a href="${slugify(b.title)}.html" class="${parent === b.slug ? 'active' : ''}">${b.title}</a>`;
             return acc + tag;
-          }, `<a href="/" class="${parent === "index" ? 'active' : ''}">index</a>`),
+          }, `<a href="/" class="${parent === "index" ? 'active' : ''}">About</a>`),
         }
 
         if (placeholders.title && placeholders.description) {
@@ -81,11 +94,14 @@ async function generate_site() {
             <article class="full-post">
               <header>
                 <h1>${placeholders.title}</h1>
-                <p>${placeholders.created_at}</p>
+                <p>Last updated: ${placeholders.updated_at}</p>
               </header>
               ${placeholders.image ? `<img alt="" src="${placeholders.image}" />` : ""}
               ${placeholders.description}
               ${!placeholders.image ? `<a href="${placeholders.url}">READ NOW</a>` : ""}
+              <p style="font-style: italic; opacity: 0.5;">
+                — Connected by <a href="${placeholders.author_url}">${placeholders.author}</a>, ${placeholders.created_at}.
+              </p>
             </article>
           `;
         } else {
@@ -93,7 +109,7 @@ async function generate_site() {
             <article class="little-post">
               ${placeholders.image ? `<img alt="" src="${placeholders.image}" />` : placeholders.content}
               <p style="font-style: italic; opacity: 0.5;">
-                — <a href="${placeholders.author_url}">${placeholders.author}</a>, ${placeholders.created_at}.
+                — Connected by <a href="${placeholders.author_url}">${placeholders.author}</a>, ${placeholders.created_at}.
               </p>
             </article>
           `;
@@ -108,10 +124,11 @@ async function generate_site() {
       "index.html",
       {
         ...global_placeholders,
+        page_description: site_details.metadata.description ? `<div class="page-description"><p>${site_details.metadata.description}</p><a href="https://are.na/${site_details.owner_slug}/${site_details.slug}">subscribe 🔔</a></div>` : "",
         nav_links: channels.reduce((acc, b) => {
           const tag = `<a href="${slugify(b.title)}.html">${b.title}</a>`;
           return acc + tag;
-        }, `<a href="/" class="active">index</a>`),
+        }, `<a href="/" class="active">About</a>`),
         articles: generate_posts_for_page(contents, "index")
       },
       "public/index.html"
@@ -121,15 +138,18 @@ async function generate_site() {
     channels.forEach(async (channel) => {
       const response = await get_channel_contents(channel.id);
       const { contents } = await response.json();
+      const details_response = await get_channel_info(channel.id);
+      const details = await details_response.json();
       create_page(
         "index.html",
         {
           ...global_placeholders,
           articles: generate_posts_for_page(contents, channel.slug),
+          page_description: details.metadata.description ? `<div class="page-description"><p>${details.metadata.description}</p><a href="https://are.na/${details.owner_slug}/${details.slug}">subscribe 🔔</a></div>` : "",
           nav_links: channels.reduce((acc, b) => {
             const tag = `<a href="${slugify(b.title)}.html" class="${channel.slug === b.slug ? 'active' : ''}">${b.title}</a>`;
             return acc + tag;
-          }, `<a href="/">index</a>`)
+          }, `<a href="/">About</a>`)
         },
         `public/${slugify(channel.title)}.html`
       );
@@ -161,8 +181,10 @@ function format_date(str) {
   const month = months[date.getMonth()];
   const day_of_month = date.getDate();
   const year = date.getFullYear();
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
 
-  return `${day_of_week} ${month} ${day_of_month} ${year}`;
+  return `${day_of_week} ${month} ${day_of_month} ${year} at ${hours}:${minutes}`;
 }
 
 function slugify(str) {

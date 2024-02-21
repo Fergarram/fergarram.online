@@ -13,7 +13,7 @@
 </head>
 <body>
 	<header>
-		<a href="{{{site_author_url}}}" class="site-title">{{{site_author}}}</a>
+		<a href="{{{author_url}}}" class="site-title">{{{site_author}}}</a>
 		<div class="site-header">
 			<nav>
 				{{{nav_links}}}
@@ -25,15 +25,15 @@
 		</div>
 	</header>
 	<main>
-		<article>
+		<article style="background-color: floralwhite;">
 			<header>
 				<h1>{{{title}}}</h1>
-				<p>{{{created_at}}}</p>
+				<p>Last updated: {{{updated_at}}}</p>
 			</header>
 			{{{content}}}
 			<p style="font-style: italic; opacity: 0.5;">
-            — <a href="{{{author_url}}}">{{{author}}}</a>
-          </p>
+            	— Connected by <a href="{{{author_url}}}">{{{author}}}</a>, {{{created_at}}}.
+            </p>
 		</article>
 	</main>
 	<script>

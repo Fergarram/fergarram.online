@@ -13,7 +13,7 @@
 </head>
 <body>
 	<header>
-		<a href="{{{site_author_url}}}" class="site-title">{{{site_author}}}</a>
+		<a href="{{{author_url}}}" class="site-title">{{{site_author}}}</a>
 		<div class="site-header">
 			<nav>
 				{{{nav_links}}}
@@ -25,11 +25,31 @@
 		</div>
 	</header>
 	<main>
-		{{{articles}}}
+		<div class="toolbar">Post order: <button data-flow="old" id="sort-button">newest first</button></div>
+		{{{page_description}}}
+		<div id="article-list">
+			{{{articles}}}
+		</div>
 	</main>
 	<script>
-		function log_mexico_city_time() {
-		  setInterval(() => {
+		const sort_button_el = document.getElementById("sort-button");
+		const list_el = document.getElementById("article-list");
+
+		sort_button_el.addEventListener("click", () => {
+			if (sort_button_el.dataset.flow === "old") {
+				sort_button_el.innerText = "oldest first";
+				sort_button_el.dataset.flow = "new";
+			} else {
+				sort_button_el.innerText = "newest first";
+				sort_button_el.dataset.flow = "old";
+			}
+			const children = Array.from(list_el.children);
+			children.reverse().forEach(child => {
+				list_el.appendChild(child);
+			});
+		});
+
+		setInterval(() => {
 		    const utc_offset = -6; // Mexico City's UTC offset
 		    const now = new Date();
 		    const local_time = new Date(now.getTime() + utc_offset * 3600 * 1000);
@@ -45,9 +65,6 @@
 		    el.firstElementChild.innerText = `${sleeping}`;
 		    el.lastElementChild.innerText = `${hours}:${minutes}:${seconds}`;
 		  }, 1000);
-		}
-
-		log_mexico_city_time();
 	</script>
 </body>
 </html>
