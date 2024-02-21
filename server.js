@@ -45,6 +45,9 @@ if (!process.env.IS_VERCEL) load_env();
     local_author_url: `https://are.na/${site_details.user.slug}/`,
     local_title: site_details.title,
     local_slug: site_details.slug,
+    local_show_description: !site_details.metadata || !site_details.metadata.description
+      ? `style="display: none;"`
+      : "",
     local_description: site_details.metadata ? site_details.metadata.description : "",
     local_created_at: format_date(site_details.created_at),
     local_updated_at: format_date(site_details.updated_at),
@@ -65,6 +68,9 @@ if (!process.env.IS_VERCEL) load_env();
       local_author_url: `https://are.na/${timeline.user.slug}/`,
       local_title: timeline.title,
       local_slug: timeline.slug,
+      local_show_description: !timeline_details.metadata || !timeline_details.metadata.description
+        ? `style="display: none;"`
+        : "",
       local_description: timeline_details.metadata ? timeline_details.metadata.description : "",
       local_created_at: format_date(timeline.created_at),
       local_updated_at: format_date(timeline.updated_at),
