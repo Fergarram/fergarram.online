@@ -37,7 +37,7 @@ function replace_placeholders(template, placeholders) {
 
 async function read_file(file_path) {
   try {
-    const content = await fs.readFile(file_path, 'utf8');
+    const content = await fs.promises.readFile(file_path, 'utf8');
     return content;
   } catch (e) {
     throw new Error(`Failed to read template: ${e.message}`);
@@ -46,7 +46,7 @@ async function read_file(file_path) {
 
 async function write_file(file_path, content) {
   try {
-    await fs.writeFile(file_path, content);
+    await fs.promises.writeFile(file_path, content);
     console.log(`"${file_path}" was created.`);
   } catch (e) {
     throw new Error(`Failed to write output: ${e.message}`);
@@ -96,4 +96,4 @@ function slugify(str) {
   return str;
 }
 
-module.exports = { format_date, slugify };
+module.exports = { load_env, replace_placeholders, read_file, write_file, format_date, slugify };
