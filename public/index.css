@@ -83,7 +83,6 @@ main {
 
 .empty-state {
 	max-width: 45em;
-	margin: 0 auto;
 	padding: 1rem;
 }
 
@@ -155,7 +154,6 @@ main {
 	flex-direction: column;
 	gap: 1.5rem;
 	max-width: 45em;
-	margin: 0 auto;
 	padding: 1rem;
 	border: 1.5px solid black;
 	line-height: 1.35;
@@ -193,7 +191,6 @@ main {
 	flex-direction: column;
 	gap: 1.5rem;
 	max-width: 45em;
-	margin: 0 auto;
 	padding: 1rem;
 	line-height: 1.35;
 	border-bottom: 1.5px solid black;
@@ -211,7 +208,6 @@ main {
 	flex-direction: column;
 	gap: 1.5rem;
 	max-width: 45em;
-	margin: 0 auto;
 	padding: 1rem;
 	border: 1.5px solid black;
 	line-height: 1.35;

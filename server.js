@@ -1,6 +1,14 @@
 const fs = require('fs');
 const { load_user, get_channel_contents, get_channel_info } = require('./api');
-const { load_env, format_date, slugify, read_file, write_file, replace_placeholders } = require('./utils');
+const {
+  load_env,
+  truncate_text,
+  format_date,
+  slugify,
+  read_file,
+  write_file,
+  replace_placeholders
+} = require('./utils');
 
 if (!process.env.IS_VERCEL) load_env();
 
@@ -72,15 +80,25 @@ if (!process.env.IS_VERCEL) load_env();
       let generate_page = false;
       let template = "";
 
-      if (block.title && block.description && !block.class.includes("Link")) {
+      if (block.title && block.description && block.class !== "Link") {
         generate_page = true;
         template = templates.ARTICLE;
       } else if (
-          block.class.includes("Text") ||
-          block.class.includes("Image") ||
-          block.class.includes("Link")
+          block.class === "Text" ||
+          block.class === "Image" ||
+          block.class === "Link"
       ) {
         template = templates[block.class.toUpperCase()];
+      }
+
+      let content = block.content_html || "";
+      
+      if (block.class === "Link") {
+        content = block.source.url;
+      }
+
+      if (block.class === "Image") {
+       content = block.description || "";
       }
 
       const placeholders = {
@@ -90,15 +108,26 @@ if (!process.env.IS_VERCEL) load_env();
         local_author_url: `https://are.na/${block.user.slug}/`,
         local_title: block.title || "",
         local_slug: block.title ? slugify(block.title) : block.id.toString(),
-        local_url: block.title ? `/${slugify(block.title)}-${block.id}.html` : `/${block.id.toString()}.html`,
-        local_description: block.description || "",
+        local_url: block.title
+          ? `/${slugify(block.title)}-${block.id}.html`
+          : `/${block.id.toString()}.html`,
+        local_description: block.class === "Image" && generate_page
+          ? truncate_text(block.description, 20)
+          : block.description || "",
         local_created_at: format_date(block.created_at),
         local_updated_at: format_date(block.updated_at),
         local_image_thumbnail: block.image ? block.image.thumb.url : "",
         local_image_display: block.image ? block.image.display.url : "",
         local_image_original: block.image ? block.image.original.url : "",
-        local_content: block.class.includes("Link") ? block.source.url : block.content_html || "",
+        local_content: content,
       };
+
+      placeholders.local_thumbnail = block.image
+          ? generate_img_html(placeholders.local_url, placeholders.local_image_thumbnail)
+          : "";
+      placeholders.local_img = block.image
+          ? generate_img_html(placeholders.local_image_original, placeholders.local_image_display)
+          : "";
 
       timeline_html += replace_placeholders(template, placeholders);
 
@@ -108,6 +137,10 @@ if (!process.env.IS_VERCEL) load_env();
     });
 
     return timeline_html;
+  }
+
+  function generate_img_html(link, src, alt="") {
+    return `<a href="${link}"><img src="${src}" alt="${alt}"/></a>`;
   }
 
   function generate_nav_html(active_name, items) {

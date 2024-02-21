@@ -28,6 +28,10 @@ function load_env() {
   }
 }
 
+function truncate_text(text, words) {
+  return text.split(" ").slice(0, words).join(" ") + "...";
+}
+
 function replace_placeholders(template, placeholders) {
   return Object.keys(placeholders).reduce((html, key) => {
     const placeholder = `{{{${key}}}}`;
@@ -96,4 +100,4 @@ function slugify(str) {
   return str;
 }
 
-module.exports = { load_env, replace_placeholders, read_file, write_file, format_date, slugify };
+module.exports = { load_env, truncate_text, replace_placeholders, read_file, write_file, format_date, slugify };
