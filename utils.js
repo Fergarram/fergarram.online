@@ -39,6 +39,22 @@ function replace_placeholders(template, placeholders) {
   }, template);
 }
 
+async function clean_public() {
+  try {
+    const files = await fs.promises.readdir("./public");
+    for (const file of files) {
+      const file_path = path.join("./public", file);
+      const stat = await fs.promises.stat(file_path);
+
+      if (stat.isFile() && path.extname(file) === '.html') {
+        await fs.promises.unlink(file_path);
+      }
+    }
+  } catch (error) {
+    console.error('Error deleting .html files:', error);
+  }
+}
+
 async function read_file(file_path) {
   try {
     const content = await fs.promises.readFile(file_path, 'utf8');
@@ -100,4 +116,4 @@ function slugify(str) {
   return str;
 }
 
-module.exports = { load_env, truncate_text, replace_placeholders, read_file, write_file, format_date, slugify };
+module.exports = { load_env, clean_public, truncate_text, replace_placeholders, read_file, write_file, format_date, slugify };

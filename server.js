@@ -1,7 +1,12 @@
 const fs = require('fs');
-const { load_user, get_channel_contents, get_channel_info } = require('./api');
+const {
+  load_user,
+  get_channel_contents,
+  get_channel_info
+} = require('./api');
 const {
   load_env,
+  clean_public,
   truncate_text,
   format_date,
   slugify,
@@ -13,6 +18,7 @@ const {
 if (!process.env.IS_VERCEL) load_env();
 
 (async () => {
+  await clean_public();
   const templates = {
     TIMELINE: await read_file("templates/timeline.html"),
     PAGE: await read_file("templates/page.html"), 
