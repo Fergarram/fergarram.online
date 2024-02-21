@@ -4,19 +4,19 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	
-	<title>{{{title}}} - {{{site_author}}}</title>
-	<meta name="description" content="{{{description}}}">
-    <meta name="author" content="{{{author}}}">
+	<title>{{{local_title}}} - {{{site_title}}}</title>
+	<meta name="description" content="{{{local_description}}}">
+    <meta name="author" content="{{{local_author}}}">
     <meta name="robots" content="index, follow">
 
 	<link rel="stylesheet" type="text/css" href="/index.css">
 </head>
 <body>
 	<header>
-		<a href="{{{author_url}}}" class="site-title">{{{site_author}}}</a>
+		<a href="{{{site_author_url}}}" class="site-title">{{{site_author}}}</a>
 		<div class="site-header">
 			<nav>
-				{{{nav_links}}}
+				{{{local_nav}}}
 			</nav>
 			<p id="clock">
 				<span class="nowrap">TIMEZONE</span>
@@ -25,20 +25,31 @@
 		</div>
 	</header>
 	<main>
-		<article style="background-color: floralwhite;">
-			<header>
-				<h1>{{{title}}}</h1>
-				<p>Last updated: {{{updated_at}}}</p>
-			</header>
-			{{{content}}}
-			<p style="font-style: italic; opacity: 0.5;">
-            	— Connected by <a href="{{{author_url}}}">{{{author}}}</a>, {{{created_at}}}.
-            </p>
-		</article>
+		<div class="toolbar">Post order: <button data-flow="old" id="sort-button">newest first</button></div>
+		{{{local_description}}}
+		<div id="article-list">
+			{{{local_content}}}
+		</div>
 	</main>
 	<script>
-		function log_mexico_city_time() {
-		  setInterval(() => {
+		const sort_button_el = document.getElementById("sort-button");
+		const list_el = document.getElementById("article-list");
+
+		sort_button_el.addEventListener("click", () => {
+			if (sort_button_el.dataset.flow === "old") {
+				sort_button_el.innerText = "oldest first";
+				sort_button_el.dataset.flow = "new";
+			} else {
+				sort_button_el.innerText = "newest first";
+				sort_button_el.dataset.flow = "old";
+			}
+			const children = Array.from(list_el.children);
+			children.reverse().forEach(child => {
+				list_el.appendChild(child);
+			});
+		});
+
+		setInterval(() => {
 		    const utc_offset = -6; // Mexico City's UTC offset
 		    const now = new Date();
 		    const local_time = new Date(now.getTime() + utc_offset * 3600 * 1000);
@@ -54,9 +65,6 @@
 		    el.firstElementChild.innerText = `${sleeping}`;
 		    el.lastElementChild.innerText = `${hours}:${minutes}:${seconds}`;
 		  }, 1000);
-		}
-
-		log_mexico_city_time();
 	</script>
 </body>
 </html>

@@ -1,243 +1,135 @@
 const fs = require('fs');
-const path = require('path');
-
+const { load_user, get_channel_contents, get_channel_info } = require('./api');
+const { load_env, format_date, slugify, read_file, write_file, replace_placeholders } = require('./utils');
 
 if (!process.env.IS_VERCEL) load_env();
-generate_site();
 
-async function load_user() {
-  const target_url = `https://api.are.na/v2/me`;
-
+(async () => {
   try {
-    const response = await fetch(target_url, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${process.env.DANGER_ARENA_TOKEN}`,
-      },
-    });
+    const templates = {
+      TIMELINE: await read_file("templates/timeline.html"),
+      PAGE: await read_file("templates/page.html"), 
+      TEXT: await read_file("templates/text.html"), 
+      ARTICLE: await read_file("templates/article.html"), 
+      LINK: await read_file("templates/link.html"), 
+      IMAGE: await read_file("templates/image.html"), 
+    };
 
-    const user = await response.json();
-
-    console.log("Found user:", user.full_name);
-    return user;
-
-  } catch (e) {
-    console.error("FUCK, FAILED TO GET USER DATA.", e);
-  }
-}
-
-async function get_channel_contents(id) {
-  const endpoint = `https://api.are.na/v2/channels/${id}/contents?page=1&per=100&direction=desc`;
-  return await fetch(endpoint, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${process.env.DANGER_ARENA_TOKEN}`,
-    },
-  });
-}
-
-async function get_channel_info(id) {
-  const endpoint = `https://api.are.na/v2/channels/${id}/thumb`;
-  return await fetch(endpoint, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${process.env.DANGER_ARENA_TOKEN}`,
-    },
-  });
-}
-
-async function generate_site() {
-  try {
     const user_session = await load_user();
-
-    const site_channel = await get_channel_info("fergarram-online");
-    const site_details = await site_channel.json();
-
-    const response = await get_channel_contents("fergarram-online");
-    const { contents } = await response.json();
+    const site_details = await get_timeline_details(process.env.SITE_CHANNEL_ID);
+    const site_contents = await get_timeline_contents(process.env.SITE_CHANNEL_ID);
+    const other_timelines = site_contents.filter(b => b.class === "Channel");
+    const main_timeline_contents = site_contents.filter(b => b.class !== "Channel");
 
     const global_placeholders = {
-      site_title: "fergarram.online",
+      site_title: site_details.title,
       site_arena: `https://are.na/${user_session.slug}/${site_details.slug}/`,
       site_description: `${user_session.full_name}'s generated are.na site.`,
       site_author: user_session.full_name,
       site_author_url: `https://are.na/${user_session.slug}/`,
     };
-    
-    const channels = contents.filter(b => b.class === "Channel");
 
-    const generate_posts_for_page = (contents, parent) => {
-      let article_list = contents.length === 0 ? `<p class="empty-state">Nothing yet.</p>` : "";
-      contents.forEach(block => {
-        if (block.class !== "Text" && block.class !== "Image") return;
-
-        const placeholders = {
-          ...global_placeholders,
-          url: block.title ? `/${slugify(block.title)}.html` : '',
-          title: block.title || "untitled block",
-          author: block.user.full_name,
-          author_url: `https://are.na/${block.user.slug}/`,
-          description: block.description,
-          content: block.content_html,
-          image: block.class === "Image" ? block.image.display.url : "",
-          created_at: format_date(block.created_at),
-          updated_at: format_date(block.updated_at),
-          nav_links: channels.reduce((acc, b) => {
-            const tag = `<a href="${slugify(b.title)}.html" class="${parent === b.slug ? 'active' : ''}">${b.title}</a>`;
-            return acc + tag;
-          }, `<a href="/" class="${parent === "index" ? 'active' : ''}">About</a>`),
-        }
-
-        if (placeholders.title && placeholders.description) {
-          if (!placeholders.image) create_page("post.html", placeholders, `public${placeholders.url}`);
-          article_list += `
-            <article class="full-post">
-              <header>
-                <h1>${placeholders.title}</h1>
-                <p>Last updated: ${placeholders.updated_at}</p>
-              </header>
-              ${placeholders.image ? `<img alt="" src="${placeholders.image}" />` : ""}
-              ${placeholders.description}
-              ${!placeholders.image ? `<a href="${placeholders.url}">READ NOW</a>` : ""}
-              <p style="font-style: italic; opacity: 0.5;">
-                — Connected by <a href="${placeholders.author_url}">${placeholders.author}</a>, ${placeholders.created_at}.
-              </p>
-            </article>
-          `;
-        } else {
-          article_list += `
-            <article class="little-post">
-              ${placeholders.image ? `<img alt="" src="${placeholders.image}" />` : placeholders.content}
-              <p style="font-style: italic; opacity: 0.5;">
-                — Connected by <a href="${placeholders.author_url}">${placeholders.author}</a>, ${placeholders.created_at}.
-              </p>
-            </article>
-          `;
-        }
-      });
-
-      return article_list;
+    // Generate the main timeline first.
+    const main_timeline_placeholders = {
+      ...global_placeholders,
+      local_nav: generate_nav_html(site_details.title, [site_details, ...other_timelines]),
+      local_author: site_details.user.full_name,
+      local_author_url: `https://are.na/${site_details.user.slug}/`,
+      local_title: site_details.title,
+      local_slug: site_details.slug,
+      local_description: site_details.metadata.description,
+      local_created_at: site_details.created_at,
+      local_updated_at: site_details.updated_at,
+      local_content: generate_timeline_html(site_details, main_timeline_contents),
     };
 
-    // Create timeline page
-    create_page(
-      "index.html",
-      {
-        ...global_placeholders,
-        page_description: site_details.metadata.description ? `<div class="page-description"><p>${site_details.metadata.description}</p><a href="https://are.na/${site_details.owner_slug}/${site_details.slug}">subscribe 🔔</a></div>` : "",
-        nav_links: channels.reduce((acc, b) => {
-          const tag = `<a href="${slugify(b.title)}.html">${b.title}</a>`;
-          return acc + tag;
-        }, `<a href="/" class="active">About</a>`),
-        articles: generate_posts_for_page(contents, "index")
-      },
-      "public/index.html"
-    );
+    write_file("public/index.html", replace_placeholders(templates.TIMELINE, main_timeline_placeholders));
 
-    // Create all other pages
-    channels.forEach(async (channel) => {
-      const response = await get_channel_contents(channel.id);
-      const { contents } = await response.json();
-      const details_response = await get_channel_info(channel.id);
-      const details = await details_response.json();
-      create_page(
-        "index.html",
-        {
-          ...global_placeholders,
-          articles: generate_posts_for_page(contents, channel.slug),
-          page_description: details.metadata.description ? `<div class="page-description"><p>${details.metadata.description}</p><a href="https://are.na/${details.owner_slug}/${details.slug}">subscribe 🔔</a></div>` : "",
-          nav_links: channels.reduce((acc, b) => {
-            const tag = `<a href="${slugify(b.title)}.html" class="${channel.slug === b.slug ? 'active' : ''}">${b.title}</a>`;
-            return acc + tag;
-          }, `<a href="/">About</a>`)
-        },
-        `public/${slugify(channel.title)}.html`
-      );
+    // Generate all the other timelines.
+    other_timelines.forEach(async (timeline) => {
+      const timeline_details = await get_timeline_details(timeline.id);
+      const timeline_contents = await get_timeline_contents(timeline.id);
+      const placeholders = {
+        local_nav: generate_nav_html(timeline.title, [site_details, ...other_timelines]),
+        local_author: timeline.user.full_name,
+        local_author_url: `https://are.na/${timeline.user.slug}/`,
+        local_title: timeline.title,
+        local_slug: timeline.slug,
+        local_description: timeline_details.metadata.description,
+        local_created_at: timeline.created_at,
+        local_updated_at: timeline.updated_at,
+        local_content: generate_timeline_html(timeline, timeline_contents),
+      }
+      write_file(`public/${slugify(timeline.title)}.html`, replace_placeholders(templates.TIMELINE, placeholders));
     });
 
   } catch (e) {
-    console.error("FUCK, FAILED TO GET ARENA CONTENT.", e);
+    console.error("Error generating site:", e.message);
   }
-}
+})()
 
-async function create_page(template, placeholders, out) {
-  let html = await fs.promises.readFile(template, 'utf8');
+function generate_timeline_html(timeline, blocks) {
+  let timeline_html = "";
 
-  Object.keys(placeholders).forEach(key => {
-    const placeholder = `{{{${key}}}}`;
-    html = html.replaceAll(placeholder, placeholders[key]);
+  blocks.forEach(block => {
+    let generate_page = false;
+    let template = "";
+
+    if (block.title && block.description) {
+      generate_page = true;
+      template = templates.ARTICLE;
+    } else if (
+        block.class.includes("Text") ||
+        block.class.includes("Image") ||
+        block.class.includes("Link")
+    ) {
+      template = tempates[block.class.toUpperCase()];
+    }
+
+    const placeholders = {
+      local_nav: generate_nav_html(timeline.title, [site_details, ...other_timelines]),
+      local_author: block.user.full_name,
+      local_author_url: `https://are.na/${block.user.slug}/`,
+      local_title: block.title || "",
+      local_slug: block.title ? slugify(block.title) : block.id.toString(),
+      local_url: block.title ? `/${slugify(block.title)}-${block.id}.html` : `/${block.id.toString()}.html`,
+      local_description: block.description || "",
+      local_created_at: block.created_at,
+      local_updated_at: block.updated_at,
+      local_image_thumbnail: block.image ? block.image.thumb.url : "",
+      local_image_display: block.image ? block.image.display.url : "",
+      local_image_original: block.image ? block.image.original.url : "",
+      local_content: block.class.includes("Link") ? block.source.url : block.content_html || "",
+    };
+
+    timeline_html += replace_placeholders(template, placeholders);
+
+    if (generate_page && !block.class.includes("Link")) {
+      write_file(`public${placeholders.local_url}`, replace_placeholders(templates.PAGE, placeholders));
+    }
   });
 
-  await fs.promises.writeFile(out, html);
-  console.log(`"${out}" was created.`);
+  return timeline_html;
 }
 
-function format_date(str) {
-  const date = new Date(str);
-  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-  const day_of_week = days[date.getDay()];
-  const month = months[date.getMonth()];
-  const day_of_month = date.getDate();
-  const year = date.getFullYear();
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-
-  return `${day_of_week} ${month} ${day_of_month} ${year} at ${hours}:${minutes}`;
+function generate_nav_html(active_name, items) {
+  return items.reduce((acc, item) => {
+    const tag = 
+      `<a href="${slugify(item.title)}.html"
+          class="${active_name === item.title ? 'active' : ''}">
+        ${item.title}
+      </a>`;
+    return acc + tag;
+  }, `<a href="/">About</a>`)
 }
 
-function slugify(str) {
-  str = str.replace(/^\s+|\s+$/g, "");
-
-  // Make the string lowercase
-  str = str.toLowerCase();
-
-  str = str.replace("'", "");
-
-  // Remove accents, swap ñ for n, etc
-  const from =
-    "ÁÄÂÀÃÅČÇĆĎÉĚËÈÊẼĔȆÍÌÎÏŇÑÓÖÒÔÕØŘŔŠŤÚŮÜÙÛÝŸŽáäâàãåčçćďéěëèêẽĕȇíìîïňñóöòôõøðřŕšťúůüùûýÿžþÞĐđßÆa·/_,:;";
-  const to =
-    "AAAAAACCCDEEEEEEEEIIIINNOOOOOORRSTUUUUUYYZaaaaaacccdeeeeeeeeiiiinnooooooorrstuuuuuyyzbBDdBAa------";
-  for (let i = 0, l = from.length; i < l; i++) {
-    str = str.replace(new RegExp(from.charAt(i), "g"), to.charAt(i));
-  }
-
-  // Remove invalid chars
-  str = str
-    .replace(/[^a-z0-9 -]/g, "")
-    // Collapse whitespace and replace by -
-    .replace(/\s+/g, "-")
-    // Collapse dashes
-    .replace(/-+/g, "-");
-
-  return str;
+async function get_timeline_details(channel_id) {
+  const response = await get_channel_info(channel_id);
+  return response.json();
 }
 
-function load_env() {
-  try {
-    // Read the .env file content
-    const envFilePath = path.resolve(__dirname, '.env');
-    const envFileContent = fs.readFileSync(envFilePath, { encoding: 'utf-8' });
-
-    // Split the content into lines
-    const envVariables = envFileContent.split('\n');
-
-    // Iterate over each line
-    envVariables.forEach((line) => {
-      // Ignore lines that are empty or start with a hash (#)
-      if (line && !line.startsWith('#')) {
-        // Split line by first occurrence of "=" to separate key and value
-        const [key, ...values] = line.split('=');
-        const value = values.join('=').trim(); // Re-join in case value contains "="
-        // Set the environment variable if key is not empty
-        if (key) {
-          process.env[key.trim()] = value;
-        }
-      }
-    });
-  } catch (e) {
-    console.error('Failed to load .env file', e);
-  }
+async function get_timeline_contents(channel_id) {
+  const response = await get_channel_contents(channel_id);
+  const { contents } = await response.json();
+  return contents;
 }
