@@ -45,7 +45,7 @@ if (!process.env.IS_VERCEL) load_env();
     local_author_url: `https://are.na/${site_details.user.slug}/`,
     local_title: site_details.title,
     local_slug: site_details.slug,
-    local_description: site_details.metadata.description,
+    local_description: site_details.metadata ? site_details.metadata.description : "",
     local_created_at: format_date(site_details.created_at),
     local_updated_at: format_date(site_details.updated_at),
     local_content: generate_timeline_html(site_details, main_timeline_contents),
@@ -65,7 +65,7 @@ if (!process.env.IS_VERCEL) load_env();
       local_author_url: `https://are.na/${timeline.user.slug}/`,
       local_title: timeline.title,
       local_slug: timeline.slug,
-      local_description: timeline_details.metadata.description,
+      local_description: timeline_details.metadata ? timeline_details.metadata.description : "",
       local_created_at: format_date(timeline.created_at),
       local_updated_at: format_date(timeline.updated_at),
       local_content: generate_timeline_html(timeline, timeline_contents),
@@ -79,6 +79,9 @@ if (!process.env.IS_VERCEL) load_env();
     blocks.forEach(block => {
       let generate_page = false;
       let template = "";
+
+      // @TODO: Handle "Attachment"
+      // @TODO: Handle "Media"
 
       if (block.title && block.description && block.class !== "Link") {
         generate_page = true;
@@ -98,7 +101,7 @@ if (!process.env.IS_VERCEL) load_env();
       }
 
       if (block.class === "Image") {
-       content = block.description || "";
+       content = block.description_html || "";
       }
 
       const placeholders = {
@@ -112,8 +115,9 @@ if (!process.env.IS_VERCEL) load_env();
           ? `/${slugify(block.title)}-${block.id}.html`
           : `/${block.id.toString()}.html`,
         local_description: block.class === "Image" && generate_page
-          ? truncate_text(block.description, 20)
-          : block.description || "",
+          ? ""
+          : block.description_html || "",
+        local_sanatized_description: block.description, // @FIXME: Actually remove markdown syntax.
         local_created_at: format_date(block.created_at),
         local_updated_at: format_date(block.updated_at),
         local_image_thumbnail: block.image ? block.image.thumb.url : "",

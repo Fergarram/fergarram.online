@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	
 	<title>{{{local_title}}} - {{{site_title}}}</title>
-	<meta name="description" content="{{{local_description}}}">
+	<meta name="description" content="{{{local_sanatized_description}}}">
     <meta name="author" content="{{{local_author}}}">
     <meta name="robots" content="index, follow">
 
@@ -27,7 +27,7 @@
 	<main>
 		<div class="toolbar">Post order: <button data-flow="old" id="sort-button">newest first</button></div>
 		<div class="page-description">
-			<p>{{{local_description}}}</p>
+			<div>{{{local_description}}}</div>
 			<a href="https://are.na/{{{local_author_slug}}}/{{{local_slug}}}">subscribe 🔔</a>
 		</div>
 		<div id="article-list">
