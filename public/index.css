@@ -15,6 +15,7 @@ body {
 	margin: 0;
 	padding: 0;
 	font-size: 1rem;
+	overflow-wrap: anywhere;
 }
 
 .site-title {
@@ -166,6 +167,10 @@ article header p {
 	padding: 1rem;
 	background-color: aquamarine;
 	border: 1.5px solid black;
+}
+
+img {
+	max-width: 100%;
 }
 
 /*
