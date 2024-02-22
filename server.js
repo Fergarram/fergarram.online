@@ -36,7 +36,7 @@ if (!process.env.IS_VERCEL) load_env();
 
   const global_placeholders = {
     site_title: site_details.title,
-    site_arena: `https://are.na/${user_session.slug}/${site_details.slug}/`,
+    site_arena_url: `https://are.na/${user_session.slug}/${site_details.slug}/`,
     site_description: `${user_session.full_name}'s generated are.na site.`,
     site_author: user_session.full_name,
     site_author_url: `https://are.na/${user_session.slug}/`,
@@ -92,13 +92,12 @@ if (!process.env.IS_VERCEL) load_env();
       let generate_page = false;
       let template = "";
 
-      // @TODO: Handle "Attachment"
-      // @TODO: Handle "Media"
-
       if (block.title && block.description && block.class !== "Link") {
         generate_page = true;
         template = templates.ARTICLE;
       } else if (
+          // @TODO: Handle "Attachment"
+          // @TODO: Handle "Media"
           block.class === "Text" ||
           block.class === "Image" ||
           block.class === "Link"
@@ -116,6 +115,7 @@ if (!process.env.IS_VERCEL) load_env();
        content = block.description_html || "";
       }
 
+      // @TODO: Make this object blob more readable.
       const placeholders = {
         ...global_placeholders,
         local_nav: generate_nav_html(timeline.title, other_timelines),
@@ -124,8 +124,8 @@ if (!process.env.IS_VERCEL) load_env();
         local_title: block.title || "",
         local_slug: block.title ? slugify(block.title) : block.id.toString(),
         local_url: block.title
-          ? `/${slugify(block.title)}-${block.id}.html`
-          : `/${block.id.toString()}.html`,
+          ? `${slugify(block.title)}-${block.id}.html`
+          : `${block.id.toString()}.html`,
         local_description: block.class === "Image" && generate_page
           ? ""
           : block.description_html || "",
@@ -148,7 +148,7 @@ if (!process.env.IS_VERCEL) load_env();
       timeline_html += replace_placeholders(template, placeholders);
 
       if (generate_page) {
-        write_file(`public${placeholders.local_url}`, replace_placeholders(templates.PAGE, placeholders));
+        write_file(`public/${placeholders.local_url}`, replace_placeholders(templates.PAGE, placeholders));
       }
     });
 
@@ -167,7 +167,7 @@ if (!process.env.IS_VERCEL) load_env();
           ${item.title}
         </a>`;
       return acc + tag;
-    }, `<a href="/" class="${active_name === site_details.title ? 'active' : ''}">About</a>`)
+    }, `<a href="index.html" class="${active_name === site_details.title ? 'active' : ''}">About</a>`)
   }
 
   async function get_timeline_details(channel_id) {
