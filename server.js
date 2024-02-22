@@ -40,6 +40,7 @@ if (!process.env.IS_VERCEL) load_env();
     site_description: `${user_session.full_name}'s generated are.na site.`,
     site_author: user_session.full_name,
     site_author_url: `https://are.na/${user_session.slug}/`,
+    site_clock: process.env.UTC_OFFSET === undefined ? "" : generate_clock_html(process.env.UTC_OFFSET),
   };
 
   // Generate the main timeline first.
@@ -168,6 +169,17 @@ if (!process.env.IS_VERCEL) load_env();
         </a>`;
       return acc + tag;
     }, `<a href="index.html" class="${active_name === site_details.title ? 'active' : ''}">About</a>`)
+  }
+
+  function generate_clock_html(offset) {
+    const sign = Number(offset) === 0 || Number(offset) < 0 ? "-" : "+";
+    const abs_offset = Math.abs(Number(offset));
+    return `
+      <p id="clock" data-offset="${offset}">
+        <span class="nowrap">TIMEZONE</span>
+        <span class="nowrap">[UTC${sign}${abs_offset}]</span>
+      </p>
+    `;
   }
 
   async function get_timeline_details(channel_id) {

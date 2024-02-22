@@ -18,10 +18,7 @@
 			<nav>
 				{{{local_nav}}}
 			</nav>
-			<p id="clock">
-				<span class="nowrap">TIMEZONE</span>
-				<span class="nowrap">[GMT-6]</span>
-			</p>
+			{{{site_clock}}}
 		</div>
 	</header>
 	<main>
@@ -34,40 +31,6 @@
 			{{{local_content}}}
 		</div>
 	</main>
-	<script>
-		const sort_button_el = document.getElementById("sort-button");
-		const list_el = document.getElementById("article-list");
-
-		sort_button_el.addEventListener("click", () => {
-			if (sort_button_el.dataset.flow === "old") {
-				sort_button_el.innerText = "oldest first";
-				sort_button_el.dataset.flow = "new";
-			} else {
-				sort_button_el.innerText = "newest first";
-				sort_button_el.dataset.flow = "old";
-			}
-			const children = Array.from(list_el.children);
-			children.reverse().forEach(child => {
-				list_el.appendChild(child);
-			});
-		});
-
-		setInterval(() => {
-		    const utc_offset = -6; // Mexico City's UTC offset
-		    const now = new Date();
-		    const local_time = new Date(now.getTime() + utc_offset * 3600 * 1000);
-
-		    let hours = local_time.getUTCHours();
-		    let sleeping = (hours >= 19 || hours < 7) ? "it's late" : "my time";
-
-		    hours = hours.toString().padStart(2, '0');
-		    const minutes = local_time.getUTCMinutes().toString().padStart(2, '0');
-		    const seconds = local_time.getUTCSeconds().toString().padStart(2, '0');
-
-		    const el = document.getElementById('clock');
-		    el.firstElementChild.innerText = `${sleeping}`;
-		    el.lastElementChild.innerText = `${hours}:${minutes}:${seconds}`;
-		  }, 1000);
-	</script>
+	<script src="index.js"></script>
 </body>
 </html>

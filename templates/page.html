@@ -18,10 +18,7 @@
 			<nav>
 				{{{local_nav}}}
 			</nav>
-			<p id="clock">
-				<span class="nowrap">TIMEZONE</span>
-				<span class="nowrap">[GMT-6]</span>
-			</p>
+			{{{site_clock}}}
 		</div>
 	</header>
 	<main class="template-page">
@@ -39,27 +36,6 @@
             </footer>
 		</article>
 	</main>
-	<script>
-		function log_mexico_city_time() {
-		  setInterval(() => {
-		    const utc_offset = -6; // Mexico City's UTC offset
-		    const now = new Date();
-		    const local_time = new Date(now.getTime() + utc_offset * 3600 * 1000);
-
-		    let hours = local_time.getUTCHours();
-		    let sleeping = (hours >= 19 || hours < 7) ? "it's late" : "my time";
-
-		    hours = hours.toString().padStart(2, '0');
-		    const minutes = local_time.getUTCMinutes().toString().padStart(2, '0');
-		    const seconds = local_time.getUTCSeconds().toString().padStart(2, '0');
-
-		    const el = document.getElementById('clock');
-		    el.firstElementChild.innerText = `${sleeping}`;
-		    el.lastElementChild.innerText = `${hours}:${minutes}:${seconds}`;
-		  }, 1000);
-		}
-
-		log_mexico_city_time();
-	</script>
+	<script src="index.js"></script>
 </body>
 </html>
