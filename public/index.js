@@ -1,21 +1,23 @@
+const clock_el = document.getElementById('clock');
 const sort_button_el = document.getElementById("sort-button");
 const list_el = document.getElementById("article-list");
 
-sort_button_el.addEventListener("click", () => {
-	if (sort_button_el.dataset.flow === "old") {
-		sort_button_el.innerText = "oldest first";
-		sort_button_el.dataset.flow = "new";
-	} else {
-		sort_button_el.innerText = "newest first";
-		sort_button_el.dataset.flow = "old";
-	}
-	const children = Array.from(list_el.children);
-	children.reverse().forEach(child => {
-		list_el.appendChild(child);
+if (sort_button_el && list_el) {
+	sort_button_el.addEventListener("click", () => {
+		if (sort_button_el.dataset.flow === "old") {
+			sort_button_el.innerText = "oldest first";
+			sort_button_el.dataset.flow = "new";
+		} else {
+			sort_button_el.innerText = "newest first";
+			sort_button_el.dataset.flow = "old";
+		}
+		const children = Array.from(list_el.children);
+		children.reverse().forEach(child => {
+			list_el.appendChild(child);
+		});
 	});
-});
+}
 
-const clock_el = document.getElementById('clock');
 if (clock_el) {
 	setInterval(() => {
 	    const utc_offset = Number(clock_el.dataset.offset);
