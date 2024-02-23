@@ -1,3 +1,68 @@
+:root {
+	--bg-0: white;
+	--bg-1: aquamarine;
+	--bg-2: lightcyan;
+	--bg-4: floralwhite;
+	--bg-5: lavender;
+	--fg-0: black;
+	--fg-1: black;
+	--link: blue;
+	--link-visited: purple;
+	--typography: 14px monospace;
+}
+
+.emo-kitty {
+	--bg-0: black;
+	--bg-1: deeppink;
+	--bg-2: ivory;
+	--bg-4: rebeccapurple;
+	--bg-5: midnightblue;
+	--fg-0: ivory;
+	--fg-1: black;
+	--link: deeppink;
+	--link-visited: deeppink;
+	--typography: 13px monospace;
+}
+
+.olive {
+	--bg-0: darkkhaki;
+	--bg-1: darkolivegreen;
+	--bg-2: olivedrab;
+	--bg-4: papayawhip;
+	--bg-5: thistle;
+	--fg-0: black;
+	--fg-1: white;
+	--link: navy;
+	--link-visited: rebeccapurple;
+	--typography: 13px monospace;
+}
+
+.dark-olive{
+	--bg-0: darkslategray;
+	--bg-1: darkseagreen;
+	--bg-2: antiquewhite;
+	--bg-4: darkslategray;
+	--bg-5: dimgray;
+	--fg-0: antiquewhite;
+	--fg-1: black;
+	--link: darkorange;
+	--link-visited: darkorange;
+	--typography: 12px sans-serif;
+}
+
+.not-hacker-news {
+	--bg-0: black;
+	--bg-1: tomato;
+	--bg-2: antiquewhite;
+	--bg-4: black;
+	--bg-5: dimgray;
+	--fg-0: antiquewhite;
+	--fg-1: black;
+	--link: tomato;
+	--link-visited: tomato;
+	--typography: 12px sans-serif;
+}
+
 /*
 // OVERRIDES
 */
@@ -11,12 +76,21 @@
 }
 
 html {
-	font-family: monospace;
-	font-size: 14px;
+	background-color: var(--bg-0);
+	color: var(--fg-0);
+	font: var(--typography);
 }
 
 img {
 	max-width: 100%;
+}
+
+a {
+	color: var(--link);
+}
+
+a:visited {
+	color: var(--link-visited);
 }
 
 /*
@@ -41,7 +115,11 @@ main {
 	text-transform: uppercase;
 	margin-bottom: 1rem;
 	text-decoration: none;
-	color: black;
+	color: var(--fg-0);
+}
+
+.site-title:visited {
+	color: var(--fg-0);
 }
 
 .site-title:hover {
@@ -66,10 +144,14 @@ main {
 .site-header a {
 	display: flex;
 	padding: 0.25rem 0.5rem;
-	border: 1.5px solid black;
+	border: 1.5px solid var(--fg-0);
 	text-decoration: none;
 	text-transform: uppercase;
-	color: black;
+	color: var(--fg-0);
+}
+
+.site-header a:visited {
+	color: var(--fg-0);
 }
 
 .site-header a:hover {
@@ -77,8 +159,8 @@ main {
 }
 
 .site-header a.active {
-	background: aquamarine;
-	color: black;
+	background-color: var(--bg-1);
+	color: var(--fg-1);
 }
 
 .empty-state {
@@ -94,9 +176,9 @@ main {
 	column-gap: 2rem;
 	row-gap: 1rem;
 	padding: 1rem;
-	background-color: lightcyan; 
-	border: 1.5px solid lightcyan;
-	/*	gold, khaki, aliceblue, antiquewhite, lavander, lemon..., lightcyan, */
+	background-color: var(--bg-2); 
+	border: 1.5px solid var(--bg-2);
+	color: var(--fg-1);
 }
 
 .page-description > a {
@@ -114,8 +196,9 @@ main {
 	justify-content: space-between;
 	gap: 1rem;
 	padding: 1rem;
-	background-color: aquamarine;
-	border: 1.5px solid black;
+	background-color: var(--bg-1);
+	border: 1.5px solid var(--fg-0);
+	color: var(--fg-1);
 }
 
 /*
@@ -155,9 +238,9 @@ main {
 	gap: 1.5rem;
 	max-width: 45em;
 	padding: 1rem;
-	border: 1.5px solid black;
+	border: 1.5px solid var(--fg-0);
 	line-height: 1.35;
-	background-color: floralwhite;
+	background-color: var(--bg-4);
 }
 
 .template-page > article > header,
@@ -166,7 +249,7 @@ main {
 	flex-wrap: wrap;
 	justify-content: space-between;
 	gap: 0.5rem;
-	border-bottom: 1.5px solid black;
+	border-bottom: 1.5px solid var(--fg-0);
 	padding-bottom: 0.5rem;
 }
 
@@ -193,7 +276,7 @@ main {
 	max-width: 45em;
 	padding: 1rem;
 	line-height: 1.35;
-	border-bottom: 1.5px solid black;
+	border-bottom: 1.5px solid var(--fg-0);
 }
 
 .template-image footer,
@@ -209,9 +292,9 @@ main {
 	gap: 1.5rem;
 	max-width: 45em;
 	padding: 1rem;
-	border: 1.5px solid black;
+	border: 1.5px solid var(--fg-0);
 	line-height: 1.35;
-	background-color: lavender;
+	background-color: var(--bg-5);
 }
 
 .template-link header {
@@ -219,7 +302,7 @@ main {
 	flex-wrap: wrap;
 	justify-content: space-between;
 	gap: 0.5rem;
-	border-bottom: 1.5px solid black;
+	border-bottom: 1.5px solid var(--fg-0);
 	padding-bottom: 0.5rem;
 }
 
@@ -231,7 +314,7 @@ main {
 .template-link > div > a {
 	float: left;
 	display: block;
-	border: 1.5px solid black;
+	border: 1.5px solid var(--fg-0);
 	min-width: 8rem;
 	width: 8rem;
 	height: 8rem;

@@ -41,6 +41,7 @@ if (!process.env.IS_VERCEL) load_env();
     site_author: user_session.full_name,
     site_author_url: `https://are.na/${user_session.slug}/`,
     site_clock: process.env.UTC_OFFSET === undefined ? "" : generate_clock_html(process.env.UTC_OFFSET),
+    site_theme: process.env.THEME === undefined ? "" : `class="${process.env.THEME}"`,
   };
 
   // Generate the main timeline first.
