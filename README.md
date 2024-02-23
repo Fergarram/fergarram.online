@@ -14,7 +14,7 @@ See it as you will.
 
 Just deploy it here:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FFergarram%2Ffergarram.online&env=DANGER_ARENA_TOKEN,SITE_CHANNEL_ID,IS_VERCEL,THEME&envDescription=API%20keys%20and%20other%20configuration%20variables%20needed%20for%20setting%20up%20your%20page.&envLink=https%3A%2F%2Fgithub.com%2FFergarram%2Ffergarram.online&project-name=arena-blog&repository-name=arena-blog&demo-url=https%3A%2F%2Ffergarram.online)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FFergarram%2Ffergarram.online&env=DANGER_ARENA_TOKEN,SITE_CHANNEL_ID,IS_VERCEL,THEME&envDescription=Click%20the%20%22Learn%20More%22%20button%20to%20see%20available%20themes%20and%20other%20instructions.&envLink=https%3A%2F%2Fgithub.com%2FFergarram%2Ffergarram.online&project-name=arena-blog&repository-name=arena-blog&demo-url=https%3A%2F%2Ffergarram.online)
 
 ## Env Variables
 
