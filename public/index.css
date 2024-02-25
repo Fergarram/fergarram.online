@@ -21,7 +21,7 @@
 	--fg-1: black;
 	--link: deeppink;
 	--link-visited: deeppink;
-	--typography: 13px monospace;
+	--typography: 14px monospace;
 }
 
 .olive {
@@ -34,7 +34,7 @@
 	--fg-1: white;
 	--link: navy;
 	--link-visited: rebeccapurple;
-	--typography: 13px monospace;
+	--typography: 14px monospace;
 }
 
 .dark-olive{
@@ -47,7 +47,7 @@
 	--fg-1: black;
 	--link: darkorange;
 	--link-visited: darkorange;
-	--typography: 12px sans-serif;
+	--typography: 14px sans-serif;
 }
 
 .not-hacker-news {
@@ -60,7 +60,7 @@
 	--fg-1: black;
 	--link: tomato;
 	--link-visited: tomato;
-	--typography: 12px sans-serif;
+	--typography: 14px sans-serif;
 }
 
 /*
@@ -76,9 +76,12 @@
 }
 
 html {
+	font: var(--typography);
+}
+
+body {
 	background-color: var(--bg-0);
 	color: var(--fg-0);
-	font: var(--typography);
 }
 
 img {
@@ -204,6 +207,14 @@ main {
 /*
 // JAVASCRIPT
 */
+
+#theme-switch {
+	position: absolute;
+	top: 0.75rem;
+	right: 1rem;
+	padding: 0.1rem 0.25rem;
+	font-size: 1rem;
+}
 
 #clock {
 	display: flex;

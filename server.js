@@ -42,6 +42,7 @@ if (!process.env.IS_VERCEL) load_env();
     site_author_url: `https://are.na/${user_session.slug}/`,
     site_clock: process.env.UTC_OFFSET === undefined ? "" : generate_clock_html(process.env.UTC_OFFSET),
     site_theme: process.env.THEME === undefined ? "" : `class="${process.env.THEME}"`,
+    site_theme_toggle: process.env.SHOW_THEME_TOGGLE === "true"  ? generate_theme_toggle_html() : "" 
   };
 
   // Generate the main timeline first.
@@ -170,6 +171,18 @@ if (!process.env.IS_VERCEL) load_env();
         </a>`;
       return acc + tag;
     }, `<a href="index.html" class="${active_name === site_details.title ? 'active' : ''}">About</a>`)
+  }
+
+  function generate_theme_toggle_html() {
+    return `
+      <script>
+        window.theme = localStorage.getItem("feed_site_theme");
+        if (theme !== null) document.documentElement.className = window.theme;
+      </script>
+      <button title="Change theme" aria-label="Change theme" id="theme-switch">
+        🎨
+      </button>
+    `;
   }
 
   function generate_clock_html(offset) {

@@ -30,11 +30,14 @@ Just set it to `true`.
 ### `THEME`
 Choose a theme. There are 5 options currently avaialbe:
 
-- `default` like fergarram.online
+- `default` like fergarram.online (if empty it's set to default)
 - `emo-kitty`
 - `olive`
 - `dark-olive`
 - `not-hacker-news`
+
+### `SHOW_THEME_TOGGLE`
+Default is `true`. Once you decide on a theme, you can turn it off.
 
 You can change all these variables after deployment by going to the [vercel enviroment settings](https://vercel.com/docs/projects/environment-variables)
 

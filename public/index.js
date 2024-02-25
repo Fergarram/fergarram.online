@@ -1,6 +1,20 @@
 const clock_el = document.getElementById('clock');
+const theme_switch_el = document.getElementById('theme-switch');
 const sort_button_el = document.getElementById("sort-button");
 const list_el = document.getElementById("article-list");
+
+if (theme_switch_el) {
+	const themes = ["", "emo-kitty", "olive", "dark-olive", "not-hacker-news"];
+	let current_theme_index = window.theme !== null && themes.includes(window.theme)
+		? themes.indexOf(window.theme)
+		: 0;
+
+	theme_switch_el.addEventListener("click", () => {
+        current_theme_index = (current_theme_index + 1) % themes.length;
+        document.documentElement.className = themes[current_theme_index];
+        localStorage.setItem("feed_site_theme", themes[current_theme_index]);
+	});
+}
 
 if (sort_button_el && list_el) {
 	sort_button_el.addEventListener("click", () => {
