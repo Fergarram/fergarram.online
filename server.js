@@ -95,12 +95,14 @@ if (!process.env.IS_VERCEL) load_env();
       let generate_page = false;
       let template = "";
 
+      // @TODO: Handle "Media"
+      if (block.class === "Media") block.class = "Link";
+
       if (block.title && block.description && block.class !== "Link") {
         generate_page = true;
         template = templates.ARTICLE;
       } else if (
           // @TODO: Handle "Attachment"
-          // @TODO: Handle "Media"
           block.class === "Text" ||
           block.class === "Image" ||
           block.class === "Link"
@@ -119,6 +121,7 @@ if (!process.env.IS_VERCEL) load_env();
       }
 
       // @TODO: Make this object blob more readable.
+      if (block.class === "Link") console.log(block)
       const placeholders = {
         ...global_placeholders,
         local_nav: generate_nav_html(timeline.title, other_timelines),
@@ -131,7 +134,7 @@ if (!process.env.IS_VERCEL) load_env();
           : `${block.id.toString()}.html`,
         local_description: block.class === "Image" && generate_page
           ? ""
-          : block.description_html || "",
+          : block.description_html || (block.embed ? `Media attachment type: ${block.embed.type}` : ""),
         local_sanatized_description: block.description, // @FIXME: Actually remove markdown syntax.
         local_created_at: format_date(block.created_at),
         local_updated_at: format_date(block.updated_at),

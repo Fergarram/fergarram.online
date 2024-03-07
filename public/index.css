@@ -408,7 +408,7 @@ button:active {
 	gap: 1rem;
 }*/
 
-.template-link > div > a {
+.template-link > div > a.screenshot {
 	float: left;
 	display: block;
 	border: 1.5px solid var(--fg-0);
@@ -416,6 +416,11 @@ button:active {
 	width: 8rem;
 	height: 8rem;
 	margin-right: 1rem;
+}
+
+.template-link > div > a:not(.screenshot) {
+	display: inline-block;
+	margin-top: 1rem;
 }
 
 .template-link > div > a > img {
