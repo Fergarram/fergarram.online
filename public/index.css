@@ -242,6 +242,18 @@ main {
 // TEMPLATE STYLES
 */
 
+.template-article ul,
+.template-page ul,
+.template-text ul,
+.template-article ol,
+.template-page ol,
+.template-text ol {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	padding-left: 2rem;
+}
+
 .template-page > article,
 .template-article {
 	display: flex;
