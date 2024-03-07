@@ -4,7 +4,7 @@ const sort_button_el = document.getElementById("sort-button");
 const list_el = document.getElementById("article-list");
 
 if (theme_switch_el) {
-	const themes = ["", "emo-kitty", "olive", "dark-olive", "not-hacker-news"];
+	const themes = ["", "calm", "emo-kitty", "olive", "dark-olive", "not-hacker-news"];
 	let current_theme_index = window.theme !== null && themes.includes(window.theme)
 		? themes.indexOf(window.theme)
 		: 0;
@@ -19,10 +19,10 @@ if (theme_switch_el) {
 if (sort_button_el && list_el) {
 	sort_button_el.addEventListener("click", () => {
 		if (sort_button_el.dataset.flow === "old") {
-			sort_button_el.innerText = "oldest first";
+			sort_button_el.innerText = "oldest first 🔻";
 			sort_button_el.dataset.flow = "new";
 		} else {
-			sort_button_el.innerText = "newest first";
+			sort_button_el.innerText = "newest first 🔺";
 			sort_button_el.dataset.flow = "old";
 		}
 		const children = Array.from(list_el.children);

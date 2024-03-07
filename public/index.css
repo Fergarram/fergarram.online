@@ -4,24 +4,46 @@
 	--bg-2: lightcyan;
 	--bg-4: floralwhite;
 	--bg-5: lavender;
+	--bg-6: transparent;
+	--bg-7: transparent;
 	--fg-0: black;
 	--fg-1: black;
 	--link: blue;
 	--link-visited: purple;
-	--typography: 13px monospace;
+	--typography-ui: 13px monospace;
+	--typography-content: 13px monospace;
+}
+
+.calm {
+	--bg-0: white;
+	--bg-1: darkseagreen;
+	--bg-2: honeydew;
+	--bg-4: floralwhite;
+	--bg-5: lavender;
+	--bg-6: transparent;
+	--bg-7: transparent;
+	--fg-0: black;
+	--fg-1: black;
+	--link: blue;
+	--link-visited: purple;
+	--typography-ui: 13px monospace;
+	--typography-content: 13px monospace;
 }
 
 .emo-kitty {
 	--bg-0: black;
 	--bg-1: deeppink;
-	--bg-2: ivory;
+	--bg-2: white;
 	--bg-4: rebeccapurple;
 	--bg-5: midnightblue;
-	--fg-0: ivory;
+	--bg-6: transparent;
+	--bg-7: transparent;
+	--fg-0: white;
 	--fg-1: black;
 	--link: deeppink;
 	--link-visited: deeppink;
-	--typography: 14px monospace;
+	--typography-ui: 13px monospace;
+	--typography-content: 13 monospace;
 }
 
 .olive {
@@ -30,37 +52,46 @@
 	--bg-2: olivedrab;
 	--bg-4: papayawhip;
 	--bg-5: thistle;
+	--bg-6: papayawhip;
+	--bg-7: PaleGoldenRod;
 	--fg-0: black;
 	--fg-1: white;
 	--link: navy;
 	--link-visited: rebeccapurple;
-	--typography: 14px monospace;
+	--typography-ui: 13px serif;
+	--typography-content: 13px serif;
 }
 
 .dark-olive{
 	--bg-0: darkslategray;
 	--bg-1: darkseagreen;
 	--bg-2: antiquewhite;
-	--bg-4: darkslategray;
+	--bg-4: darkolivegreen;
 	--bg-5: dimgray;
+	--bg-6: transparent;
+	--bg-7: transparent;
 	--fg-0: antiquewhite;
 	--fg-1: black;
 	--link: darkorange;
 	--link-visited: darkorange;
-	--typography: 14px sans-serif;
+	--typography-ui: 12px monospace;
+	--typography-content: 13px serif;
 }
 
 .not-hacker-news {
 	--bg-0: black;
 	--bg-1: tomato;
 	--bg-2: antiquewhite;
-	--bg-4: black;
+	--bg-4: darkslategrey;
 	--bg-5: dimgray;
+	--bg-6: transparent;
+	--bg-7: transparent;
 	--fg-0: antiquewhite;
 	--fg-1: black;
 	--link: tomato;
 	--link-visited: tomato;
-	--typography: 14px sans-serif;
+	--typography-ui: 12px sans-serif;
+	--typography-content: 13px sans-serif;
 }
 
 /*
@@ -70,13 +101,11 @@
 * {
 	margin: 0;
 	padding: 0;
-	font-size: 1rem;
-	font-weight: normal;
 	overflow-wrap: anywhere;
 }
 
 html {
-	font: var(--typography);
+	font: var(--typography-ui);
 }
 
 body {
@@ -119,6 +148,7 @@ main {
 	margin-bottom: 1rem;
 	text-decoration: none;
 	color: var(--fg-0);
+	font-weight: bold;
 }
 
 .site-title:visited {
@@ -151,6 +181,7 @@ main {
 	text-decoration: none;
 	text-transform: uppercase;
 	color: var(--fg-0);
+	background-color: var(--bg-7);
 }
 
 .site-header a:visited {
@@ -232,10 +263,30 @@ main {
 	margin-top: 1rem;
 }
 
-#sort-button {
-	padding: 0.1rem 0.25rem;
-	font-size: 1rem;
-	width: fit-content;
+button {
+	display: flex;
+	align-items: center;
+	gap: 3px;
+	line-height: 1.2;
+	background: lightgray;
+	color: black;
+	padding: 0.15rem 0.5rem;
+	border-radius: 0.5rem;
+	border: none;
+	cursor: pointer;
+	text-transform: lowercase;
+	filter: drop-shadow(2px 2px);
+	text-decoration: none;
+}
+
+button:hover {
+	background-color: lightblue;
+}
+
+button:active {
+	background-color: skyblue;
+	transform: scale(0.95);
+	filter: drop-shadow(0px 0px);
 }
 
 /*
@@ -252,6 +303,13 @@ main {
 	flex-direction: column;
 	gap: 1rem;
 	padding-left: 2rem;
+}
+
+.template-article,
+.template-page,
+.template-text,
+.template-link {
+	font: var(--typography-content);
 }
 
 .template-page > article,
@@ -280,6 +338,10 @@ main {
 	opacity: 0.5;
 }
 
+.template-page > article > header > p:hover {
+	opacity: 0.65;
+}
+
 .template-page > article h1,
 .template-article h2 {
 	text-transform: uppercase;
@@ -291,6 +353,11 @@ main {
 	opacity: 0.5;
 }
 
+.template-page > article > footer:hover,
+.template-article footer:hover {
+	opacity: 0.65;
+}
+
 .template-image,
 .template-text {
 	display: flex;
@@ -299,6 +366,7 @@ main {
 	max-width: 45em;
 	padding: 1rem;
 	line-height: 1.35;
+	background-color: var(--bg-6);
 	border-bottom: 1.5px solid var(--fg-0);
 }
 
@@ -307,6 +375,12 @@ main {
 .template-text footer {
 	font-style: italic;
 	opacity: 0.5;
+}
+
+.template-image footer:hover,
+.template-link footer:hover,
+.template-text footer:hover {
+	opacity: 0.65;
 }
 
 .template-link {
