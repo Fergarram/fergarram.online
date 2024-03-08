@@ -15,19 +15,19 @@
 }
 
 .calm {
-	--bg-0: white;
+	--bg-0: silver;
 	--bg-1: darkseagreen;
-	--bg-2: honeydew;
-	--bg-4: floralwhite;
-	--bg-5: lavender;
-	--bg-6: transparent;
-	--bg-7: transparent;
+	--bg-2: white;
+	--bg-4: ivory;
+	--bg-5: ivory;
+	--bg-6: white;
+	--bg-7: white;
 	--fg-0: black;
 	--fg-1: black;
 	--link: blue;
 	--link-visited: purple;
-	--typography-ui: 13px monospace;
-	--typography-content: 13px monospace;
+	--typography-ui: 12px serif;
+	--typography-content: 13px serif;
 }
 
 .emo-kitty {
@@ -106,6 +106,10 @@
 
 html {
 	font: var(--typography-ui);
+}
+
+h1,h2,h3,h4,h5,h6 {
+	font-size: 1rem;
 }
 
 body {
