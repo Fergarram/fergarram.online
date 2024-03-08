@@ -12,6 +12,7 @@
 	--link-visited: purple;
 	--typography-ui: 13px monospace;
 	--typography-content: 13px monospace;
+	--letter-spacing: -0.35px;
 }
 
 .calm {
@@ -28,6 +29,7 @@
 	--link-visited: purple;
 	--typography-ui: 12px serif;
 	--typography-content: 13px serif;
+	--letter-spacing: 0;
 }
 
 .emo-kitty {
@@ -44,6 +46,7 @@
 	--link-visited: deeppink;
 	--typography-ui: 13px monospace;
 	--typography-content: 13 monospace;
+	--letter-spacing: -0.35px;
 }
 
 .olive {
@@ -60,6 +63,7 @@
 	--link-visited: rebeccapurple;
 	--typography-ui: 13px serif;
 	--typography-content: 13px serif;
+	--letter-spacing: 0;
 }
 
 .dark-olive{
@@ -76,6 +80,7 @@
 	--link-visited: darkorange;
 	--typography-ui: 12px monospace;
 	--typography-content: 13px serif;
+	--letter-spacing: 0;
 }
 
 .not-hacker-news {
@@ -92,6 +97,7 @@
 	--link-visited: tomato;
 	--typography-ui: 12px sans-serif;
 	--typography-content: 13px sans-serif;
+	--letter-spacing: 0;
 }
 
 /*
@@ -106,6 +112,7 @@
 
 html {
 	font: var(--typography-ui);
+	letter-spacing: var(--letter-spacing);
 }
 
 h1,h2,h3,h4,h5,h6 {
